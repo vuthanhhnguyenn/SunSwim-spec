@@ -1,15 +1,15 @@
-# Functional Spec 02: QR Access và Capacity
+# Đặc tả chức năng 02: QR Access và Capacity
 
 ## 1. Mục tiêu
 
-Đưa ra quyết định access nhanh, nhất quán và audit được; quản lý presence/occupancy chính xác khi có concurrent scans. Physical gate actuation là external effect, không phải DB transaction.
+Module phải đưa ra quyết định access nhanh, nhất quán và có thể audit. Presence và occupancy vẫn phải chính xác khi nhiều gate quét đồng thời. Việc mở gate vật lý là external effect và không nằm trong DB transaction.
 
 ## 2. Actor và preconditions
 
-- Gate Reader: authenticated device bound với gate/branch/direction.
-- Manager/Receptionist: manual check-in/out/override theo permission.
-- Member/Guest: có credential chưa revoke.
-- Branch, gate, zone active; capacity policy tồn tại.
+- Gate Reader phải là authenticated device và được gắn với gate, branch cùng direction cụ thể.
+- Manager hoặc Receptionist được manual check-in, check-out và override theo permission.
+- Member hoặc Guest cần có credential chưa bị revoke.
+- Branch, gate và zone phải active; capacity policy phải tồn tại.
 
 ## 3. Request và response
 
@@ -24,7 +24,7 @@
 }
 ```
 
-`branchId/gateId` lấy từ device identity; nếu client gửi thì chỉ dùng cross-check. Header `Idempotency-Key` bằng hoặc map 1:1 với `requestId`.
+Hệ thống lấy `branchId/gateId` từ device identity. Nếu client gửi hai giá trị này, server chỉ dùng để cross-check. Header `Idempotency-Key` phải bằng hoặc ánh xạ 1:1 với `requestId`.
 
 ### Response
 
@@ -40,7 +40,7 @@
 }
 ```
 
-Không trả PII không cần thiết cho device. Response duplicate request phải tương đương semantic với lần đầu.
+Response gửi cho device không được chứa PII không cần thiết. Với request trùng, response phải có cùng ý nghĩa với lần xử lý đầu tiên.
 
 ## 4. Decision order
 
@@ -51,9 +51,9 @@ Không trả PII không cần thiết cho device. Response duplicate request ph�
 5. Check presence transition.
 6. Select và lock pass; validate activation, date, time, branch, freeze, frequency, balance.
 7. Resolve branch/zone capacity và lock state.
-8. Nếu tất cả pass: create/close session, usage, capacity, event, outbox atomically.
+8. Nếu mọi bước đều đạt, hệ thống tạo hoặc đóng session, ghi usage, capacity, event và outbox trong cùng transaction.
 
-Thứ tự lỗi trả về là ổn định để UI/support nhất quán; chi tiết nội bộ không được làm lộ account/token existence cho caller không tin cậy.
+Hệ thống trả lỗi theo thứ tự cố định để UI và Support xử lý nhất quán. Chi tiết nội bộ không được làm lộ việc account hoặc token có tồn tại cho caller không đáng tin cậy.
 
 ## 5. Presence và session
 
@@ -74,22 +74,22 @@ stateDiagram-v2
 ## 6. Capacity
 
 - Gate được map tới branch và pool zone; check-in chỉ thành công khi cả hai scope còn capacity.
-- `current` thay đổi cùng transaction session.
-- Check-in chỉ ALLOW nếu mọi capacity scope bắt buộc còn chỗ.
-- Threshold `NORMAL <80%`, `WARNING 80–<95%`, `CRITICAL 95–<100%`, `FULL ≥100%` là default configurable.
-- Manual adjustment tạo ledger/audit và không sửa/xóa access event.
+- `current` được cập nhật trong cùng transaction với session.
+- Check-in chỉ trả ALLOW khi tất cả capacity scope bắt buộc đều còn chỗ.
+- Threshold mặc định có thể cấu hình: `NORMAL <80%`, `WARNING >=80% và <95%`, `CRITICAL >=95% và <100%`, `FULL >=100%`.
+- Manual adjustment phải tạo ledger và audit, không được sửa hoặc xóa access event.
 - Dashboard hiển thị snapshot `asOf` và connection freshness.
 
 ## 7. Duplicate và concurrency
 
-- Cùng `requestId`: trả stored response, không tạo event/usage/session mới.
+- Với cùng `requestId`, hệ thống trả stored response và không tạo thêm event, usage hoặc session.
 - Credential scan lại trong debounce window bằng request ID khác: `DENY/DUPLICATE_SCAN`, không side effect.
 - Hai gates với cùng pass: partial unique presence + pass/capacity locks bảo đảm tối đa một ALLOW.
 - Capacity còn một chỗ: capacity row lock bảo đảm một ALLOW.
 
 ## 8. Gate actuation acknowledgement
 
-Baseline flow trả ALLOW rồi gate mở. Nếu hardware hỗ trợ ack:
+Theo baseline, hệ thống trả ALLOW trước khi gate mở. Nếu hardware hỗ trợ ack, luồng xử lý là:
 
 1. Device gửi `POST /gate/access-events/{id}/acknowledgements` với `OPENED/FAILED`.
 2. `FAILED` tạo incident/recovery candidate, không tự xóa access history.
@@ -99,9 +99,9 @@ Baseline flow trả ALLOW rồi gate mở. Nếu hardware hỗ trợ ack:
 
 ### Override denied access
 
-- Staff mở denied event, chọn override reason, pass/capacity impact preview.
-- Backend re-evaluate permission và current state.
-- Tạo linked override event, không biến DENY cũ thành ALLOW.
+- Staff mở denied event, chọn override reason và xem trước tác động đến pass hoặc capacity.
+- Backend kiểm tra lại permission và current state.
+- Hệ thống tạo linked override event thay vì đổi DENY cũ thành ALLOW.
 - Capacity override chỉ được phép nếu feature flag và permission riêng.
 
 ### Reconciliation
@@ -146,3 +146,13 @@ Baseline flow trả ALLOW rồi gate mở. Nếu hardware hỗ trợ ack:
 ## 14. Quyết định baseline
 
 Presence dùng phạm vi toàn chuỗi; capacity kiểm soát cả branch và zone; locker là tùy chọn. Session còn mở được auto-close sau 2 giờ kể từ giờ đóng cửa với trạng thái `RECONCILED`. Quy tắc ack và recovery áp dụng như mục 8. Chi tiết truy vết tại `OQ-001`, `OQ-005`, `OQ-006`, `OQ-007` và `OQ-019`.
+
+## Thuật ngữ cần biết
+
+| Thuật ngữ | Giải thích dễ hiểu |
+|---|---|
+| Presence | Trạng thái cho biết member đang ở ngoài hay trong khu vực bể. |
+| Occupancy | Số người đang được tính là có mặt trong khu vực kiểm soát. |
+| Idempotency | Gửi lại cùng request nhưng không tạo thêm session, usage hoặc capacity change. |
+| Debounce window | Khoảng thời gian ngắn dùng để nhận biết một QR vừa bị quét lặp. |
+| Reconciliation | Đối chiếu và sửa trạng thái vận hành bằng một bản ghi có audit. |

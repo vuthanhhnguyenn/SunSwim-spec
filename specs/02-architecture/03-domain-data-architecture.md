@@ -1,14 +1,14 @@
-# Domain và data architecture
+# Kiến trúc domain và dữ liệu
 
-## 1. Data principles
+## 1. Nguyên tắc dữ liệu
 
-- PostgreSQL là system of record.
-- Normalize đến 3NF; snapshot có chủ đích cho lịch sử giá/policy.
-- ID public dùng UUID không tuần tự dễ đoán; business code là unique riêng và không làm PK.
+- PostgreSQL là system of record của hệ thống.
+- Dữ liệu được normalize đến 3NF. Lịch sử giá và policy dùng snapshot có chủ đích.
+- Public ID dùng UUID không tuần tự để khó suy đoán. Business code có unique constraint riêng và không dùng làm primary key.
 - `timestamptz` cho event time, `date` cho ngày nghiệp vụ, `numeric(19,0)` cho VND.
 - Business status dùng `text` + `check`/lookup để dễ tiến hóa có kiểm soát.
-- Mọi FK thường dùng phải có index riêng; không giả định FK tự tạo index.
-- Mọi interval thống nhất `[start, end)`; dùng range/exclusion constraint khi có lợi.
+- Mỗi foreign key được dùng thường xuyên cần có index riêng; foreign key không tự tạo index.
+- Mọi interval dùng dạng `[start, end)`. Có thể dùng range hoặc exclusion constraint khi phù hợp.
 
 ## 2. Aggregate model
 
@@ -69,19 +69,19 @@ erDiagram
 
 ### Pass balance
 
-`pass_usages` là append-only với `delta_entries` âm/dương và reason. `member_passes.consumed_entries`/`remaining_entries` có thể là materialized balance được cập nhật cùng transaction để eligibility nhanh. Reconciliation phải so balance với `sum(delta_entries)`.
+`pass_usages` chỉ cho phép ghi thêm. Mỗi bản ghi có `delta_entries` âm hoặc dương và reason. `member_passes.consumed_entries` hoặc `remaining_entries` có thể lưu materialized balance để kiểm tra eligibility nhanh, nhưng phải cập nhật trong cùng transaction. Reconciliation so sánh balance này với `sum(delta_entries)`.
 
 ### Capacity
 
-`access_sessions` là lịch sử authoritative. `capacity_states.current_occupancy` là state quyết định đồng bộ, được lock và cập nhật cùng lúc tạo/đóng session. Nó rebuild được từ session mở, nhưng không được cache ngoài DB làm nguồn quyết định.
+`access_sessions` là lịch sử authoritative. `capacity_states.current_occupancy` là trạng thái dùng cho quyết định đồng bộ; row này được lock và cập nhật cùng lúc với việc mở hoặc đóng session. Có thể rebuild giá trị từ các session đang mở, nhưng cache ngoài database không được dùng làm nguồn quyết định.
 
 ### Audit
 
-Audit log append-only, có actor/user/device, action, target, branch scope, old/new JSONB đã lọc secret, reason, request/correlation ID, IP/device metadata và `occurred_at`.
+Audit log chỉ cho phép ghi thêm. Mỗi bản ghi có actor, user hoặc device, action, target, branch scope, old/new JSONB đã lọc secret, reason, request/correlation ID, IP hoặc device metadata và `occurred_at`.
 
 ## 6. Concurrency lock order
 
-Để giảm deadlock, mọi check-in tuân thủ cùng thứ tự:
+Để giảm deadlock, mọi luồng check-in phải lock dữ liệu theo cùng thứ tự:
 
 1. Idempotency/access request row.
 2. Open presence/member lock.
@@ -89,7 +89,7 @@ Audit log append-only, có actor/user/device, action, target, branch scope, old/
 4. Capacity state theo thứ tự zone ID cố định.
 5. Locker row nếu locker là điều kiện bắt buộc.
 
-Transaction giữ ngắn, không gọi network/provider bên trong.
+Transaction phải ngắn và không được gọi network hoặc provider khi đang mở.
 
 ## 7. Indexing baseline
 
@@ -101,8 +101,18 @@ Transaction giữ ngắn, không gọi network/provider bên trong.
 - `class_sessions(branch_id, start_at)` và `enrollments(offering_id, status)`.
 - FK columns đều có index nếu được join/delete-check thường xuyên.
 
-Không partition sớm. Chỉ cân nhắc time partition cho access/audit/outbox sau khi đo volume và có retention/maintenance need rõ.
+Không partition dữ liệu quá sớm. Chỉ cân nhắc time partition cho access, audit hoặc outbox sau khi đo volume và xác định rõ nhu cầu retention hoặc maintenance.
 
 ## 8. PII và retention flags
 
 Mỗi table/column cần data classification (`PUBLIC`, `INTERNAL`, `CONFIDENTIAL`, `RESTRICTED`) và retention owner. Hồ sơ member được giữ trong thời gian hoạt động và 24 tháng sau giao dịch cuối; payment và audit giữ 5 năm. Xóa hoặc anonymize không được phá financial/access audit bắt buộc theo `OQ-012`.
+
+## Thuật ngữ cần biết
+
+| Thuật ngữ | Giải thích dễ hiểu |
+|---|---|
+| 3NF | Cách tổ chức bảng để giảm dữ liệu lặp và hạn chế cập nhật sai lệch. |
+| Primary key hoặc PK | Giá trị nhận diện duy nhất một bản ghi trong bảng. |
+| Foreign key hoặc FK | Trường liên kết một bản ghi với bản ghi ở bảng khác. |
+| Append-only | Chỉ thêm bản ghi mới, không sửa hoặc xóa lịch sử cũ. |
+| Exclusion constraint | Ràng buộc database dùng để ngăn các khoảng thời gian hoặc tài nguyên bị trùng. |

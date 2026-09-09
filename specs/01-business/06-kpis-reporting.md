@@ -1,4 +1,4 @@
-# KPI và định nghĩa báo cáo
+# KPI và cách tính báo cáo
 
 ## 1. Metric dictionary
 
@@ -17,12 +17,12 @@
 | No-show rate | NoShow / attendance-eligible enrollment | Attendance | session/course |
 | Locker utilization | Occupied locker-minutes / available locker-minutes | Assignment/status history | branch/day |
 
-## 2. Reporting dimensions
+## 2. Các chiều phân tích
 
-- Business time: branch timezone, with explicit `from` inclusive và `to` exclusive.
-- Branch, channel, product category, payment method, pass type.
-- Member/PII chỉ trong drill-down có permission; aggregate không cần lộ PII.
-- Refund attribution phải hỗ trợ cả refund date và original sale date; UI ghi rõ basis.
+- Business time dùng timezone của branch, với `from` inclusive và `to` exclusive.
+- Các chiều phân tích gồm branch, channel, product category, payment method và pass type.
+- Drill-down chỉ hiển thị Member hoặc PII khi người dùng có permission. Dữ liệu aggregate không cần để lộ PII.
+- Refund attribution phải hỗ trợ cả refund date và original sale date. Giao diện cần ghi rõ basis đang dùng.
 
 ## 3. Freshness
 
@@ -35,7 +35,7 @@
 
 ## 4. Reconciliation
 
-Daily job so sánh:
+Daily job thực hiện năm phép đối chiếu:
 
 1. Provider settlement với payment ledger.
 2. Paid order total với tổng successful payment allocation.
@@ -43,5 +43,14 @@ Daily job so sánh:
 4. Session mở bất thường với gate/access event.
 5. Projection totals với nguồn transaction.
 
-Mọi chênh lệch tạo exception record và workflow xử lý; không tự sửa transaction lịch sử.
+Mỗi chênh lệch phải tạo exception record và đi qua workflow xử lý. Job không được tự sửa transaction lịch sử.
 
+## Thuật ngữ cần biết
+
+| Thuật ngữ | Giải thích dễ hiểu |
+|---|---|
+| KPI | Chỉ số dùng để theo dõi kết quả vận hành hoặc kinh doanh. |
+| Metric | Một đại lượng được định nghĩa rõ và có cách đo cụ thể. |
+| Grain | Mức chi tiết nhỏ nhất của dữ liệu, chẳng hạn theo payment hoặc theo ngày. |
+| Drill-down | Đi từ số liệu tổng hợp xuống các giao dịch tạo nên số liệu đó. |
+| Freshness | Mức độ mới của dữ liệu so với thời điểm hiện tại. |

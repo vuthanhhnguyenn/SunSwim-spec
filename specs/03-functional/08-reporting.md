@@ -1,8 +1,8 @@
-# Functional Spec 08: Reporting, Dashboard và Export
+# Đặc tả chức năng 08: Báo cáo, Dashboard và Export
 
 ## 1. Mục tiêu
 
-Cung cấp số liệu vận hành/tài chính có định nghĩa, freshness và khả năng drill-down/reconcile rõ. Reporting chỉ đọc/projection, không sửa transaction nguồn.
+Module cung cấp số liệu vận hành và tài chính với cách tính, freshness cùng khả năng drill-down và reconciliation rõ ràng. Reporting chỉ đọc dữ liệu hoặc tạo projection, không sửa transaction nguồn.
 
 ## 2. Actors và scope
 
@@ -14,21 +14,21 @@ Cung cấp số liệu vận hành/tài chính có định nghĩa, freshness và
 | Class/attendance | Branch/org | Branch | Assigned only | Read optional |
 | Export | Permission | Conditional | Assigned class only | Permission |
 
-Backend apply branch/field scope trước aggregation và total count.
+Backend phải áp dụng branch scope và field scope trước khi aggregation hoặc tính total count.
 
 ## 3. Time and accounting basis
 
 - Filter `from` inclusive, `to` exclusive.
-- Business day theo branch timezone; multi-branch report group từng branch local day hoặc organization reporting timezone được chọn rõ.
+- Business day dùng timezone của branch. Báo cáo nhiều branch phải ghi rõ dữ liệu được nhóm theo ngày địa phương của từng branch hay theo organization reporting timezone.
 - Revenue operational default cash basis tại `settled_at`.
-- Refund có hai views: refund activity by `refunded_at`; restated sale cohort by original order date nếu Finance yêu cầu.
+- Refund có hai view: refund activity theo `refunded_at`, hoặc restated sale cohort theo ngày của order gốc nếu Finance yêu cầu.
 - UI luôn hiển thị timezone, basis và `dataFreshness`.
 
 ## 4. Revenue dashboard
 
-KPIs: gross settled, refunds, net revenue, paid orders, average paid order. Dimensions: branch, day/week/month, channel, product category, payment method.
+KPI gồm gross settled, refund, net revenue, paid order và average paid order. Các dimension là branch, ngày, tuần, tháng, channel, product category và payment method.
 
-Drill-down từ aggregate đến order/payment/refund được permission check lại. `PENDING/FAILED/CANCELLED` không vào settled revenue.
+Khi drill-down từ aggregate xuống order, payment hoặc refund, backend phải kiểm tra permission lại. Các trạng thái `PENDING/FAILED/CANCELLED` không được tính vào settled revenue.
 
 ## 5. Operations dashboard
 
@@ -38,7 +38,7 @@ Drill-down từ aggregate đến order/payment/refund được permission check 
 - Gate/device health và unresolved sessions.
 - Locker availability/utilization nếu module enabled.
 
-Current occupancy đọc capacity state/snapshot, không tính bằng check-in count đơn giản.
+Current occupancy được đọc từ capacity state hoặc snapshot, không tính trực tiếp bằng số lượt check-in.
 
 ## 6. Class dashboard
 
@@ -49,20 +49,20 @@ Current occupancy đọc capacity state/snapshot, không tính bằng check-in c
 
 ## 7. Projection behavior
 
-- Event/inbox ID tránh double count.
+- Event ID và inbox ID được dùng để tránh double count.
 - Projection row có source version/checkpoint.
 - Late/out-of-order events được upsert theo aggregate version hoặc recompute affected bucket.
-- Rebuild chạy side-by-side hoặc theo bounded window, không làm dashboard mất nguồn dữ liệu hiện tại.
+- Rebuild chạy side-by-side hoặc theo bounded window để dashboard vẫn dùng được nguồn dữ liệu hiện tại.
 - Projection lag được đo và hiển thị.
 
 ## 8. Export
 
 1. User tạo export job với filter/schema version.
-2. Server authorize, snapshot scope và estimate size.
-3. Worker generate CSV/XLSX tùy support; mask field theo permission.
+2. Server kiểm tra quyền, lưu snapshot của scope và estimate kích thước.
+3. Worker tạo CSV hoặc XLSX tùy khả năng hỗ trợ và masking field theo permission.
 4. File private, checksum, expires_at, download audit.
 5. Job state `QUEUED → RUNNING → SUCCEEDED|FAILED|EXPIRED`.
-6. Retry idempotent không tạo file công khai/trùng notification ngoài ý muốn.
+6. Retry idempotent không được làm file trở thành công khai hoặc gửi notification trùng ngoài ý muốn.
 
 ## 9. API impacts
 
@@ -107,3 +107,13 @@ Common response metadata:
 ## 12. Quyết định baseline
 
 Reporting timezone của tổ chức là `Asia/Ho_Chi_Minh`. Finance cutoff lúc 23:59:59 theo ngày lịch và reconciliation batch chạy từ 00:30 ngày kế tiếp. Báo cáo trực tiếp tối đa 31 ngày; export CSV hoặc XLSX tối đa 100.000 dòng; link tải hết hạn sau 24 giờ. PII được masking khi người dùng không có quyền chi tiết. Chi tiết truy vết tại `OQ-012`, `OQ-013` và `OQ-021`.
+
+## Thuật ngữ cần biết
+
+| Thuật ngữ | Giải thích dễ hiểu |
+|---|---|
+| Aggregate | Số liệu được tổng hợp từ nhiều giao dịch chi tiết. |
+| Projection | Bảng dữ liệu được tạo riêng để báo cáo đọc nhanh hơn. |
+| Drill-down | Mở từ số liệu tổng xuống các giao dịch chi tiết tạo ra số liệu đó. |
+| Masking | Che một phần dữ liệu nhạy cảm khi người dùng không có đủ quyền. |
+| Cutoff | Mốc thời gian chốt dữ liệu cho một kỳ báo cáo hoặc đối soát. |

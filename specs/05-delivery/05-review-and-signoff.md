@@ -67,3 +67,13 @@ Phiên bản tài liệu có thể gắn nhãn `1.0-academic-baseline` khi:
 3. Mỗi chương đã được một thành viên khác review.
 4. Owner xác nhận đã xử lý các nhận xét mức Blocker và Major.
 5. Đạt hoàn thành mục lục, version history và bản hợp nhất.
+
+## Thuật ngữ cần biết
+
+| Thuật ngữ | Giải thích dễ hiểu |
+|---|---|
+| Definition of Ready | Điều kiện một công việc phải đáp ứng trước khi bắt đầu phát triển. |
+| Definition of Done | Điều kiện xác nhận một công việc đã hoàn thành. |
+| Sign-off | Xác nhận chính thức rằng tài liệu hoặc sản phẩm đạt yêu cầu. |
+| Quality gate | Bộ tiêu chí bắt buộc phải đạt trước khi chuyển sang bước tiếp theo. |
+| Severity | Mức độ nghiêm trọng của một lỗi. |

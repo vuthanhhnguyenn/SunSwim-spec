@@ -1,8 +1,8 @@
-# Functional Spec 03: Freeze và Pass Lifecycle
+# Đặc tả chức năng 03: Freeze và vòng đời Pass
 
 ## 1. Mục tiêu
 
-Cho phép tạm ngưng entitlement trong khoảng được phép, bảo toàn quyền lợi theo policy và chặn access chính xác kể cả scheduler chậm.
+Module cho phép tạm ngưng entitlement trong khoảng thời gian được policy cho phép. Quyền lợi của member phải được giữ đúng, và access vẫn bị chặn chính xác ngay cả khi scheduler chạy chậm.
 
 ## 2. Actors
 
@@ -16,7 +16,7 @@ Cho phép tạm ngưng entitlement trong khoảng được phép, bảo toàn qu
 
 ## 3. Freeze policy
 
-Versioned policy snapshot/reference gồm:
+Mỗi versioned policy snapshot hoặc reference gồm:
 
 - minimum/maximum effective days per request;
 - maximum total days và request count per pass;
@@ -26,7 +26,7 @@ Versioned policy snapshot/reference gồm:
 - early-resume quota behavior;
 - timezone và cách tính ngày.
 
-Policy update không đổi request đã approved trừ migration có audit.
+Khi policy thay đổi, request đã approved vẫn giữ policy cũ, trừ khi có migration kèm audit.
 
 ## 4. State models
 
@@ -45,13 +45,13 @@ stateDiagram-v2
 
 ### Period effect
 
-`SCHEDULED` khi approved nhưng chưa tới start; `ACTIVE` tại `[start, end)`; `COMPLETED` sau end; `ENDED_EARLY` nếu resume sớm.
+Period ở trạng thái `SCHEDULED` sau khi được approved nhưng chưa đến start. Trong khoảng `[start, end)`, trạng thái là `ACTIVE`; sau end là `COMPLETED`. Nếu resume sớm, trạng thái chuyển thành `ENDED_EARLY`.
 
-Pass status hiển thị có thể là `SUSPENDED`, nhưng eligibility phải query effective period để chặn tại đúng mốc.
+Pass có thể hiển thị status `SUSPENDED`, nhưng eligibility phải query effective period để chặn access đúng thời điểm.
 
 ## 5. Date semantics
 
-Nếu user chọn ngày 10/09 đến 19/09 “bao gồm cả hai ngày”:
+Nếu user chọn ngày 10/09 đến 19/09 "bao gồm cả hai ngày":
 
 ```text
 start_at = 2026-09-10 00:00 branch timezone
@@ -59,13 +59,13 @@ end_exclusive = 2026-09-20 00:00 branch timezone
 effective_days = 10
 ```
 
-Expiry adjustment ledger ghi `+10 calendar days`. UI hiển thị ngày kết thúc inclusive; API dùng `endExclusive` để không mơ hồ.
+Expiry adjustment ledger ghi `+10 calendar days`. UI hiển thị ngày kết thúc theo kiểu inclusive, còn API dùng `endExclusive` để tránh mơ hồ.
 
 ## 6. Request flow
 
 1. Load pass, active policy và remaining entitlement.
 2. Validate pass/product cho freeze, date order, min/max, notice và overlap.
-3. Nếu evidence required, attachment phải upload private và scan trước approval.
+3. Nếu cần evidence, attachment phải được upload ở chế độ private và scan trước khi approval.
 4. Create `PENDING` với policy version và requested days.
 5. Notify approver sau commit.
 
@@ -74,14 +74,14 @@ Expiry adjustment ledger ghi `+10 calendar days`. UI hiển thị ngày kết th
 1. Actor xem pass usage, expiry, prior freeze và request details.
 2. Backend revalidate pass version, quota, count, overlap, date và quyền.
 3. Trong transaction: mark request approved, create period, append expiry adjustment, audit/outbox.
-4. Nếu period đang effective, eligibility bị chặn ngay; không chờ job.
+4. Nếu period đã có hiệu lực, eligibility bị chặn ngay mà không chờ job.
 5. Retry approval idempotent trả cùng result; concurrent approver chỉ một thành công.
 
 ## 8. Reject/cancel/resume
 
-- Reject bắt buộc reason; không tạo period/expiry adjustment.
+- Khi reject, người xử lý phải nhập reason. Hệ thống không tạo period hoặc expiry adjustment.
 - Cancel pending do member/staff theo quyền.
-- Cancel approved chỉ trước start và theo policy; đảo expiry adjustment bằng ledger entry, không xóa.
+- Chỉ được cancel request đã approved trước start và theo policy. Hệ thống đảo expiry adjustment bằng một ledger entry thay vì xóa dữ liệu cũ.
 - Early resume đặt actual `end_exclusive`, tính effective days thật và tạo delta correction.
 - Early resume hoàn lại quota freeze chưa dùng, làm tròn theo ngày.
 
@@ -98,7 +98,7 @@ Expiry adjustment ledger ghi `+10 calendar days`. UI hiển thị ngày kết th
 - `POST /api/v1/freeze-periods/{periodId}/early-resumptions`
 - `GET /api/v1/member-passes/{passId}/freeze-entitlement`
 
-Decision request có `decision: APPROVE|REJECT`, `reason`, `expectedVersion`; dùng idempotency key.
+Decision request gồm `decision: APPROVE|REJECT`, `reason` và `expectedVersion`; request này phải dùng idempotency key.
 
 ## 11. UI
 
@@ -120,3 +120,13 @@ Decision request có `decision: APPROVE|REJECT`, `reason`, `expectedVersion`; d�
 ## 13. Quyết định baseline
 
 Ngày freeze tính theo ngày lịch của chi nhánh. Early resume hoàn quota chưa dùng. Giai đoạn này không thu phí freeze nên không tạo order hoặc payment riêng. Dữ liệu freeze được giữ cùng vòng đời của pass và audit. Chi tiết truy vết tại `OQ-003`, `OQ-012` và `OQ-017`.
+
+## Thuật ngữ cần biết
+
+| Thuật ngữ | Giải thích dễ hiểu |
+|---|---|
+| Freeze | Khoảng thời gian tạm dừng quyền sử dụng pass. |
+| Policy snapshot | Bản policy được giữ lại tại thời điểm tạo yêu cầu để thay đổi sau này không làm sai lịch sử. |
+| Effective period | Khoảng thời gian mà freeze thực sự có hiệu lực. |
+| Optimistic version | Số phiên bản dùng để phát hiện dữ liệu đã bị người khác thay đổi trước khi lưu. |
+| Audit | Lịch sử ghi lại ai làm gì, lúc nào và vì sao. |

@@ -1,10 +1,10 @@
-# Functional Spec 04: Classes, Coaches và Attendance
+# Đặc tả chức năng 04: Class, Coach và Attendance
 
 ## 1. Mục tiêu
 
-Quản lý chương trình học, offering/course, các session, coach, enrollment, waitlist và attendance mà không double-book hoặc over-capacity.
+Module quản lý chương trình học, offering hoặc course, session, coach, enrollment, waitlist và attendance. Hệ thống phải ngăn double-book và over-capacity.
 
-## 2. Mô hình được làm rõ
+## 2. Các thành phần trong mô hình
 
 | Entity | Ý nghĩa |
 |---|---|
@@ -15,7 +15,7 @@ Quản lý chương trình học, offering/course, các session, coach, enrollme
 | Seat Reservation | Giữ chỗ có TTL trong lúc thanh toán/waitlist promotion |
 | Attendance | Kết quả member tại một session |
 
-Việc thêm `Class Offering` giải quyết mơ hồ trong bản gốc giữa “class”, “course 12 buổi” và session.
+`Class Offering` giúp phân biệt rõ "class", "course 12 buổi" và từng session trong bản gốc.
 
 ## 3. Actors và permissions
 
@@ -30,7 +30,7 @@ Việc thêm `Class Offering` giải quyết mơ hồ trong bản gốc giữa �
 
 `DRAFT → PUBLISHED → ENROLLMENT_OPEN → FULL → IN_PROGRESS → COMPLETED`, với nhánh `PUBLISHED/OPEN/FULL → CANCELLED`.
 
-`FULL` có thể là derived state; source là capacity, confirmed enrollments và active reservations.
+`FULL` có thể là derived state, được tính từ capacity, confirmed enrollment và active reservation.
 
 ### Enrollment
 
@@ -47,21 +47,21 @@ stateDiagram-v2
     CONFIRMED --> COMPLETED
 ```
 
-Attendance không phải enrollment state. `NO_SHOW` là attendance outcome trên session.
+Attendance không phải là một enrollment state. `NO_SHOW` là attendance outcome của một session.
 
 ## 5. Scheduling rules
 
 - Interval `[start_at,end_at)`; start < end.
 - Coach không có active sessions overlap; DB exclusion + application message.
-- Pool zone concurrent capacity phải được check nếu Operations yêu cầu.
+- Nếu Operations yêu cầu, hệ thống phải kiểm tra concurrent capacity của pool zone.
 - Member conflict check khi policy bật.
 - Recurrence generation idempotent; mỗi generated session có recurrence occurrence key unique.
-- Thay đổi series phải hỏi “this session/future/all”, không silently rewrite completed session.
+- Khi sửa một series, giao diện phải cho chọn "this session", "future" hoặc "all". Hệ thống không được tự sửa các session đã completed.
 
 ## 6. Enrollment/capacity
 
-- `confirmed + active seat reservations ≤ capacity`.
-- Paid flow giữ seat TTL; settlement sau TTL cần kiểm tra lại và chuyển exception/refund queue nếu không còn seat.
+- Tổng `confirmed + active seat reservations` không được vượt quá capacity.
+- Paid flow giữ seat theo TTL. Nếu settlement đến sau TTL, hệ thống kiểm tra lại chỗ trống và chuyển sang exception hoặc refund queue khi không còn seat.
 - Complimentary/free enrollment vẫn qua idempotent fulfillment path.
 - Eligibility có thể kiểm tra age, level, waiver/guardian, schedule conflict và window.
 - Cancellation áp cutoff, refund/credit policy version.
@@ -70,9 +70,9 @@ Attendance không phải enrollment state. `NO_SHOW` là attendance outcome trê
 
 - Thứ tự baseline FIFO theo `joined_at`; tie-break ID.
 - Promotion tạo reservation có expiry và notification.
-- Worker dùng lock để không promote hai người vào một seat.
+- Worker dùng lock để tránh promote hai người vào cùng một seat.
 - Hết TTL quay về waitlist hoặc expire theo policy, sau đó promote người tiếp theo.
-- Priority/family rule nếu có phải explicit và audit.
+- Nếu có priority hoặc family rule, policy phải được khai báo rõ và có audit.
 
 ## 8. Attendance
 
@@ -84,11 +84,11 @@ Attendance không phải enrollment state. `NO_SHOW` là attendance outcome trê
 
 ## 9. Cancellation
 
-Cancel offering/session phải:
+Khi cancel offering hoặc session, hệ thống phải:
 
 1. Preview affected sessions/enrollments/payments.
 2. Require reason.
-3. Mark cancellation; không hard delete.
+3. Ghi trạng thái cancellation và không hard delete.
 4. Tạo refund/credit tasks theo policy.
 5. Notify member/guardian và coach sau commit.
 6. Release seat reservations.
@@ -131,3 +131,13 @@ Cancel offering/session phải:
 ## 14. Quyết định baseline
 
 Member dưới 16 tuổi cần guardian, emergency contact và waiver còn hiệu lực. Course bán theo Offering; drop-in bán theo Session. Waitlist giữ chỗ 2 giờ sau invitation. Nghỉ có lý do không consume và Manager có thể cấp một make-up credit. Swimmer progression và coach compensation nằm ngoài phạm vi. Chi tiết truy vết tại `OQ-011`, `OQ-015` và `OQ-018`.
+
+## Thuật ngữ cần biết
+
+| Thuật ngữ | Giải thích dễ hiểu |
+|---|---|
+| Class Offering | Một đợt lớp cụ thể được mở tại một branch để member đăng ký. |
+| Class Session | Một buổi học cụ thể thuộc Class Offering. |
+| Enrollment | Bản ghi member đã đăng ký một lớp. |
+| Waitlist | Danh sách chờ khi lớp đã hết chỗ. |
+| TTL | Khoảng thời gian một chỗ được giữ; hết thời gian này, chỗ có thể chuyển cho người khác. |

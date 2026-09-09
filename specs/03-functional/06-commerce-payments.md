@@ -1,15 +1,15 @@
-# Functional Spec 06: Commerce, POS và Payments
+# Đặc tả chức năng 06: Commerce, POS và Payment
 
 ## 1. Mục tiêu
 
-Quản lý quote, order, payment, refund, receipt và fulfillment có thể đối soát. Commerce không sở hữu pass/enrollment/rental, chỉ yêu cầu domain tương ứng fulfillment idempotently.
+Module quản lý quote, order, payment, refund, receipt và fulfillment để có thể đối soát. Commerce không sở hữu pass, enrollment hoặc rental. Module chỉ gửi yêu cầu fulfillment idempotent đến domain tương ứng.
 
 ## 2. Money model
 
-- Currency ISO 4217, MVP `VND`.
-- API amount là integer minor-unit/business unit; với VND là đồng.
+- Currency theo ISO 4217; MVP dùng `VND`.
+- Amount trong API là số nguyên theo minor unit hoặc business unit. Với VND, đơn vị là đồng.
 - Database `numeric(19,0)` cho VND; không dùng float.
-- `grand_total = subtotal - discounts + surcharges + taxes`, luôn ≥ 0.
+- `grand_total = subtotal - discounts + surcharges + taxes` và không được nhỏ hơn 0.
 - Giá niêm yết đã gồm thuế, số tiền làm tròn đến 1 VND và policy version được lưu trên receipt. E-invoice nằm ngoài phạm vi giai đoạn này.
 
 ## 3. Order model
@@ -30,19 +30,19 @@ stateDiagram-v2
     FULFILLED --> REFUNDED
 ```
 
-`PAYMENT_FAILED` là payment attempt outcome, không nhất thiết là terminal order state; user có thể thử phương thức khác trước order expiry.
+`PAYMENT_FAILED` là outcome của một payment attempt, không nhất thiết là terminal state của order. User có thể thử phương thức khác trước khi order hết hạn.
 
 ### Order item snapshot
 
-Mỗi line lưu product/version/name/category, quantity, unit list price, applied rule IDs/versions, discount/surcharge/tax breakdown, final amount và fulfillment target/subject. Không query catalog hiện tại để dựng receipt cũ.
+Mỗi line lưu product, version, name, category, quantity, unit list price, các rule ID và version đã áp dụng, breakdown của discount, surcharge, tax, final amount cùng fulfillment target hoặc subject. Khi dựng lại receipt cũ, hệ thống không query catalog hiện tại.
 
 ## 4. Payment model
 
 - Một order có nhiều payment attempts và allocations nếu split payment.
 - States: `INITIATED`, `PENDING`, `SETTLED`, `FAILED`, `CANCELLED`, `PARTIALLY_REFUNDED`, `REFUNDED`.
-- Provider transaction unique trong provider account.
+- Provider transaction phải unique trong provider account.
 - Order đạt `PAID` khi tổng settled allocations bằng grand total.
-- Overpayment không tự accepted; chuyển exception/refund queue.
+- Hệ thống không tự accept overpayment mà chuyển giao dịch vào exception hoặc refund queue.
 
 ## 5. Create order/checkout
 
@@ -50,34 +50,34 @@ Mỗi line lưu product/version/name/category, quantity, unit list price, applie
 2. Create order với quote ID và subject/branch/channel.
 3. Server revalidate quote, product sale window và scope.
 4. Persist immutable line snapshot; order `PENDING_PAYMENT`.
-5. Zero-amount/complimentary cần explicit reason/permission rồi chuyển Paid.
+5. Order zero-amount hoặc complimentary cần reason và permission rõ ràng trước khi chuyển thành Paid.
 6. Initiate payment adapter với merchant order/payment IDs và idempotency.
 
 ## 6. POS cash
 
 - Cashier nhập amount tendered; change = tendered − allocated amount.
-- Thiếu tiền chỉ cho phép khi split payment bật.
+- Chỉ chấp nhận số tiền chưa đủ khi split payment được bật.
 - Cash settlement là privileged server mutation, có cashier/shift/branch/audit.
 - Void unpaid order khác refund paid order.
-- End-of-shift cash reconciliation là benchmark gap, chưa thuộc scope gốc nhưng nên xác nhận.
+- End-of-shift cash reconciliation là phần còn thiếu so với benchmark. Nội dung này chưa có trong scope gốc và cần được xác nhận.
 
 ## 7. Online/QR payment
 
 1. API initiate provider payment, trả redirect/QR payload an toàn.
-2. Browser result chỉ hiển thị `processing` và poll order.
+2. Kết quả trên browser chỉ hiển thị `processing` và tiếp tục poll order.
 3. Signed webhook/server verify tạo settlement authoritative.
 4. Duplicate/out-of-order webhook idempotent và không lùi state.
 5. Paid outbox kích hoạt fulfillment.
 6. Pending quá timeout chuyển order `PAYMENT_EXPIRED` nếu chưa settled; late settlement đi exception handling, không bỏ qua.
 
-Không dùng ảnh chụp chuyển khoản làm auto-confirmation.
+Hệ thống không dùng ảnh chụp chuyển khoản để tự động xác nhận thanh toán.
 
 ## 8. Fulfillment
 
 - Một fulfillment row cho mỗi order item/type, unique.
 - State `PENDING → PROCESSING → SUCCEEDED|RETRYABLE_FAILED|MANUAL_REVIEW`.
 - Adapter gọi Entitlement/Training/Facility với `orderItemId` làm idempotency identity.
-- Order `FULFILLED` chỉ khi tất cả required item success.
+- Order chỉ chuyển thành `FULFILLED` khi tất cả required item thành công.
 - Paid nhưng fulfillment chậm hiển thị `Payment received, provisioning` và tạo alert theo SLA.
 
 ## 9. Refund
@@ -91,7 +91,7 @@ Không dùng ảnh chụp chuyển khoản làm auto-confirmation.
 
 ## 10. Receipt
 
-Receipt có organization/branch, order number, issued time, cashier/channel, lines, price breakdown, total/currency, payment methods/references đã mask và refund reference. Receipt versioned/immutable; reprint/download được audit khi cần.
+Receipt gồm organization, branch, order number, issued time, cashier hoặc channel, các line, price breakdown, total, currency, payment method, reference đã masking và refund reference. Receipt có version và không được sửa. Hoạt động reprint hoặc download được audit khi cần.
 
 ## 11. API impacts
 
@@ -109,7 +109,7 @@ Receipt có organization/branch, order number, issued time, cashier/channel, lin
 
 `QUOTE_EXPIRED`, `QUOTE_MISMATCH`, `PRODUCT_NOT_FOR_SALE`, `ORDER_NOT_PAYABLE`, `PAYMENT_AMOUNT_MISMATCH`, `PAYMENT_SIGNATURE_INVALID`, `PAYMENT_DUPLICATE`, `PAYMENT_NOT_SETTLED`, `INSUFFICIENT_TENDERED_AMOUNT`, `OVERPAYMENT_NOT_ALLOWED`, `REFUND_NOT_ALLOWED`, `REFUND_LIMIT_EXCEEDED`, `FULFILLMENT_PENDING`, `VERSION_CONFLICT`.
 
-Webhook invalid signature trả status theo provider contract nhưng không leak verification detail.
+Webhook có signature không hợp lệ trả status theo provider contract nhưng không để lộ chi tiết verification.
 
 ## 13. Acceptance criteria
 
@@ -125,3 +125,13 @@ Webhook invalid signature trả status theo provider contract nhưng không leak
 ## 14. Quyết định baseline
 
 Dự án chọn một payment provider qua quy trình mua sắm và che khác biệt bằng adapter. Payment session hết hạn sau 15 phút; late settlement chuyển `MANUAL_REVIEW`. Cash shift đóng hằng ngày, có đối soát theo cashier và branch. Receipt có bản in và PDF; e-invoice ngoài phạm vi. Refund thực hiện theo `OQ-010`. Chi tiết truy vết tại `OQ-008`, `OQ-009` và `OQ-010`.
+
+## Thuật ngữ cần biết
+
+| Thuật ngữ | Giải thích dễ hiểu |
+|---|---|
+| Quote | Kết quả tính giá có thời hạn dùng để tạo order. |
+| Settlement | Xác nhận từ nguồn đáng tin cậy rằng payment đã hoàn tất. |
+| Fulfillment | Bước cấp pass, enrollment hoặc rental sau khi đủ điều kiện thanh toán. |
+| Split payment | Thanh toán một order bằng nhiều lần hoặc nhiều phương thức. |
+| Late settlement | Payment được xác nhận sau khi order hoặc payment session đã hết hạn. |

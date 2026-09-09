@@ -1,11 +1,11 @@
-# MVP và release plan
+# Kế hoạch MVP và các release
 
 ## 1. Nguyên tắc phân rã
 
-- Mỗi release là vertical slice có thể vận hành/đối soát, không chỉ hoàn thành UI hoặc database.
-- Platform controls, audit, idempotency và observability đi cùng feature đầu tiên, không để cuối.
-- Online payment chỉ go-live khi webhook, reconciliation, refund và fulfillment recovery đã test.
-- Gate chỉ pilot khi race conditions, device auth và branch fallback đã diễn tập.
+- Mỗi release phải tạo ra một vertical slice có thể vận hành và đối soát, không chỉ hoàn thành riêng UI hoặc database.
+- Platform control, audit, idempotency và observability phải được triển khai cùng feature đầu tiên thay vì để đến cuối.
+- Online payment chỉ được go-live sau khi đã kiểm thử webhook, reconciliation, refund và fulfillment recovery.
+- Gate chỉ được pilot sau khi đội dự án kiểm thử race condition, device authentication và diễn tập branch fallback.
 
 ## 2. Release 0: Foundation
 
@@ -17,7 +17,7 @@
 - API conventions/problem details, observability, CI/CD, environments.
 - Member basic profile và catalog skeleton.
 
-### Exit gate
+### Điều kiện hoàn thành
 
 - Security/threat model approved.
 - Authorization/branch isolation tests pass.
@@ -35,7 +35,7 @@
 - Basic revenue/traffic/capacity dashboard.
 - In-app notifications tối thiểu.
 
-### Pilot sequence
+### Trình tự pilot
 
 1. Shadow mode: gate API ra quyết định nhưng chưa điều khiển gate.
 2. Staff-only pilot ngoài peak.
@@ -43,12 +43,12 @@
 4. Mở rộng toàn branch sau error/latency/capacity reconciliation đạt gate.
 5. Mở branch tiếp theo sau post-pilot review.
 
-### Exit gate
+### Điều kiện hoàn thành
 
-- All P0 R1 AC pass, gồm concurrent last-entry/last-capacity.
+- Tất cả acceptance criteria P0 của R1 phải đạt, gồm cả concurrent last-entry và last-capacity.
 - Gate load SLO, fail-closed và fallback runbook pass.
 - Daily payment/order/fulfillment và capacity reconciliation không có unexplained variance.
-- OQ `003–005`, `013`, `019` liên quan R1 đóng.
+- Các OQ từ `003` đến `005`, `013` và `019` liên quan đến R1 phải được đóng.
 
 ## 4. Release 2: Operational Expansion
 
@@ -61,13 +61,13 @@
 - Opening hours, slot, dynamic pricing/holiday.
 - Async exports và advanced reports.
 
-### Exit gate
+### Điều kiện hoàn thành
 
 - Provider certification/sandbox E2E và webhook replay/late settlement tests.
 - Refund/entitlement compensation và finance reconciliation pass.
 - Freeze boundary/scheduler correctness pass.
 - Locker failure/clearance runbook pass.
-- OQ `007–010`, `012`, `014`, `017`, `021` đóng theo scope.
+- Các OQ từ `007` đến `010`, `012`, `014`, `017` và `021` phải được đóng theo scope.
 
 ## 5. Release 3: Training Services
 
@@ -79,7 +79,7 @@
 - Waitlist, cancellation, attendance.
 - Member self-service training views và class reporting.
 
-### Exit gate
+### Điều kiện hoàn thành
 
 - Course/drop-in model và make-up policy approved.
 - Coach/student overlap/capacity race tests pass.
@@ -96,5 +96,14 @@
 - Native mobile/push, advanced CRM/marketing.
 - Accounting/e-invoice connector, payroll/coach compensation.
 
-Deferred không đồng nghĩa bị loại vĩnh viễn; mỗi candidate cần business case và impact analysis.
+Một candidate ở trạng thái Deferred không bị loại vĩnh viễn. Muốn đưa candidate vào release, nhóm phải có business case và impact analysis.
 
+## Thuật ngữ cần biết
+
+| Thuật ngữ | Giải thích dễ hiểu |
+|---|---|
+| MVP | Phiên bản nhỏ nhất có đủ giá trị để thử nghiệm trong thực tế. |
+| Release | Một đợt phát hành gồm một nhóm chức năng có thể sử dụng được. |
+| Vertical slice | Phần chức năng hoàn chỉnh từ giao diện đến dữ liệu và xử lý phía sau. |
+| Pilot | Triển khai thử trong phạm vi nhỏ trước khi mở rộng. |
+| Exit gate | Bộ điều kiện phải đạt trước khi kết thúc một release hoặc chuyển giai đoạn. |

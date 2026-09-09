@@ -1,8 +1,8 @@
-# Event contract và catalog
+# Quy ước và danh mục event
 
 ## 1. Envelope
 
-Event integration theo CloudEvents 1.0.x JSON envelope:
+Integration event dùng JSON envelope theo CloudEvents 1.0.x:
 
 ```json
 {
@@ -20,15 +20,15 @@ Event integration theo CloudEvents 1.0.x JSON envelope:
 }
 ```
 
-Custom extension names dùng lowercase. `id` ổn định qua retry; publish time không thay event business time.
+Tên custom extension dùng chữ thường. `id` không đổi khi retry, và publish time không được thay thế business time của event.
 
 ## 2. Delivery semantics
 
-- Transactional outbox, at-least-once delivery.
-- Consumer inbox/dedupe bằng `(consumer,eventId)`.
-- Không kỳ vọng global ordering; khi cần dùng subject + aggregate version.
-- Consumer bỏ qua duplicate; stale version không được overwrite state mới.
-- Event không chứa secret/raw QR/payment token/PII không cần thiết.
+- Event được gửi qua transactional outbox với cơ chế at-least-once delivery.
+- Consumer dùng `(consumer,eventId)` trong inbox để dedupe.
+- Hệ thống không bảo đảm global ordering. Khi cần kiểm soát thứ tự, consumer dùng subject và aggregate version.
+- Consumer bỏ qua event trùng. Version cũ không được ghi đè state mới.
+- Event không chứa secret, raw QR, payment token hoặc PII không cần thiết.
 
 ## 3. Catalog
 
@@ -65,25 +65,34 @@ Custom extension names dùng lowercase. `id` ổn định qua retry; publish tim
 
 ## 4. Event data rules
 
-- Amount kèm currency; timestamps RFC 3339 UTC.
-- Branch/zone ID có trong event cần scope/reporting.
-- Không phát full entity snapshot mặc định; chỉ field ổn định mà consumer cần.
-- Update event ghi changed fields hoặc semantic outcome, không phát raw old/new PII.
-- `reasonCode` dùng catalog enum; free-text reason ở audit, không broadcast nếu không cần.
+- Amount phải đi kèm currency; timestamp dùng RFC 3339 UTC.
+- Event phục vụ scope hoặc reporting phải có branch ID và zone ID phù hợp.
+- Mặc định không phát full entity snapshot. Payload chỉ chứa các field ổn định mà consumer cần.
+- Update event ghi changed field hoặc semantic outcome, không phát raw old/new PII.
+- `reasonCode` dùng enum trong catalog. Free-text reason được lưu ở audit và không broadcast khi không cần.
 
 ## 5. Compatibility
 
-- Trong `.v1`, chỉ thêm optional field; consumer phải ignore unknown field.
+- Trong `.v1`, producer chỉ được thêm optional field; consumer phải bỏ qua unknown field.
 - Không đổi type/meaning/requiredness của field hiện có.
 - Breaking payload tạo `.v2`, publish song song trong migration window.
 - Schema lưu trong repo và compatibility check ở CI khi implementation bắt đầu.
-- Event đã publish không được mutate/reuse ID với payload khác.
+- Event đã publish không được sửa hoặc dùng lại ID với payload khác.
 
 ## 6. Failure handling
 
 - Retry exponential backoff + jitter.
-- Sau threshold, chuyển DLQ/manual review nhưng outbox intent còn truy vết.
-- Alert theo oldest unprocessed age, không chỉ queue length.
-- Replay theo event ID/range, consumer vẫn dedupe.
-- Poison event phải có schema/error metadata, không log sensitive payload toàn bộ.
+- Khi vượt retry threshold, event được chuyển sang DLQ hoặc manual review nhưng outbox intent vẫn phải truy vết được.
+- Alert dựa trên tuổi của event chưa xử lý lâu nhất, không chỉ dựa vào queue length.
+- Khi replay theo event ID hoặc range, consumer vẫn phải dedupe.
+- Poison event cần có schema và error metadata. Log không được ghi toàn bộ sensitive payload.
 
+## Thuật ngữ cần biết
+
+| Thuật ngữ | Giải thích dễ hiểu |
+|---|---|
+| Event envelope | Khung dữ liệu chung bao quanh nội dung chính của event. |
+| Producer | Thành phần tạo và phát event. |
+| Consumer | Thành phần nhận và xử lý event. |
+| Dedupe | Phát hiện và bỏ qua event đã được xử lý trước đó. |
+| DLQ | Nơi giữ event lỗi sau khi đã retry quá số lần cho phép. |

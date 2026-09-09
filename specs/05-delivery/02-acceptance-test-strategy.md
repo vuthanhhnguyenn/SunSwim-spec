@@ -1,6 +1,6 @@
-# Acceptance và test strategy
+# Chiến lược kiểm thử và nghiệm thu
 
-## 1. Test layers
+## 1. Các lớp kiểm thử
 
 | Layer | Mục tiêu | Bắt buộc |
 |---|---|---|
@@ -29,22 +29,22 @@
 | Projection replay | Same aggregate result | Rebuild test |
 | Restore backup | RPO/RTO đo được | DR drill |
 
-## 3. State transition coverage
+## 3. Phạm vi kiểm thử state transition
 
-Với mỗi aggregate:
+Mỗi aggregate cần các nhóm test sau:
 
 - Test mọi transition hợp lệ.
 - Test mọi transition bất hợp lệ quan trọng.
-- Test terminal state không bị hồi sinh ngoài explicit override.
+- Kiểm tra terminal state không quay lại trạng thái hoạt động nếu không có explicit override.
 - Test optimistic version conflict.
 - Test idempotent retry của transition.
 - Test audit/outbox được commit cùng business state.
 
-Áp dụng cho Member Pass, Freeze Request/Period, Access Session, Locker Assignment, Order, Payment, Refund, Fulfillment, Offering, Enrollment, Export Job.
+Yêu cầu này áp dụng cho Member Pass, Freeze Request hoặc Period, Access Session, Locker Assignment, Order, Payment, Refund, Fulfillment, Offering, Enrollment và Export Job.
 
 ## 4. Calculation fixtures
 
-Version-controlled golden fixtures cho:
+Golden fixture được quản lý phiên bản cho các nội dung sau:
 
 - activation/expiry theo ngày/timezone;
 - frequency daily/weekly/monthly sau khi `OQ-004` đóng;
@@ -53,7 +53,7 @@ Version-controlled golden fixtures cho:
 - order totals, split payment, partial refund;
 - revenue basis, unique visitor, occupancy timeline.
 
-Fixture phải gồm exact boundary, leap day/month-end và negative/zero amount cases phù hợp.
+Fixture phải có exact boundary, leap day, month-end và các trường hợp amount âm hoặc bằng 0 phù hợp.
 
 ## 5. Security tests
 
@@ -66,11 +66,11 @@ Fixture phải gồm exact boundary, leap day/month-end và negative/zero amount
 - Rate-limit/abuse, upload type/size/malware, export link access.
 - Secret/PII absence trong logs/traces/errors.
 
-Security release criteria bám baseline OWASP ASVS đã được Security owner chốt.
+Tiêu chí release về bảo mật phải theo baseline OWASP ASVS mà Security owner đã chốt.
 
 ## 6. Performance/load profile
 
-- Normal traffic + burst gate traffic theo assumptions NFR.
+- Load test gồm normal traffic và burst gate traffic theo giả định NFR.
 - Hot-member/hot-pass/hot-capacity-row contention.
 - Report/export concurrent với gate path.
 - Worker backlog catch-up sau outage.
@@ -88,11 +88,20 @@ Security release criteria bám baseline OWASP ASVS đã được Security owner 
 | Training | Training Manager | Offering, coach, enrollment, waitlist, attendance |
 | Administration | Org Admin/Security | RBAC, branch scope, audit, config publish |
 
-UAT evidence gồm test ID, actor, environment/build, input, expected/actual, screenshot/log reference và approver.
+UAT evidence phải có test ID, actor, environment hoặc build, input, expected result, actual result, screenshot hoặc log reference và approver.
 
 ## 8. Defect release policy
 
 - Block release: dữ liệu/tài chính sai, over-capacity, unauthorized access/data, duplicate fulfillment/payment, backup restore fail.
 - Conditional: workaround an toàn, risk owner và expiry date rõ.
-- Không “fix” test bằng cách nới invariant/spec mà không change approval.
+- Không được "fix" test bằng cách nới invariant hoặc spec khi chưa có change approval.
 
+## Thuật ngữ cần biết
+
+| Thuật ngữ | Giải thích dễ hiểu |
+|---|---|
+| Unit test | Kiểm thử một hàm hoặc một phần logic nhỏ trong điều kiện tách biệt. |
+| Integration test | Kiểm thử cách nhiều thành phần như API và database làm việc cùng nhau. |
+| E2E test | Kiểm thử toàn bộ luồng giống cách người dùng thực hiện. |
+| Fixture | Bộ dữ liệu đầu vào và kết quả mong đợi được lưu để chạy test lặp lại. |
+| UAT | Kiểm thử do đại diện người dùng thực hiện để xác nhận hệ thống dùng được cho nghiệp vụ. |

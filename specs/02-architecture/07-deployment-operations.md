@@ -1,4 +1,4 @@
-# Deployment và operations
+# Triển khai và vận hành
 
 ## 1. Environments
 
@@ -9,18 +9,18 @@
 | Staging/UAT | E2E với provider sandbox/device test | Masked/synthetic |
 | Production | Vận hành thật | Production classified |
 
-Không chia sẻ database/secret giữa environment. Migration chạy một lần có lock và backward-compatible theo chiến lược expand/migrate/contract.
+Các environment không dùng chung database hoặc secret. Migration chạy một lần, có lock và giữ backward compatibility theo chiến lược expand, migrate, contract.
 
 ## 2. Production topology baseline
 
-- Load balancer/WAF → ≥2 API instances stateless khi HA được duyệt.
-- Worker instances riêng, job có lease.
-- Managed PostgreSQL có automated backup/PITR theo RPO.
-- Redis managed optional, mất Redis không làm sai payment/pass/capacity.
-- Private object storage cho attachment/export/receipt.
-- Centralized logs, metrics, traces và alerting.
+- Khi HA được duyệt, load balancer và WAF đứng trước ít nhất 2 API instance stateless.
+- Worker chạy trên instance riêng và mỗi job có lease.
+- Managed PostgreSQL có automated backup và PITR theo RPO.
+- Redis managed là thành phần tùy chọn. Mất Redis không được làm sai payment, pass hoặc capacity.
+- Attachment, export và receipt được lưu trong private object storage.
+- Log, metric, trace và alert được thu thập tập trung.
 
-Cloud/vendor cụ thể không được giả định trong spec này.
+Spec này không giả định một cloud hoặc vendor cụ thể.
 
 ## 3. CI/CD gates
 
@@ -35,17 +35,17 @@ Cloud/vendor cụ thể không được giả định trong spec này.
 
 ## 4. Release strategy
 
-- API change tương thích ngược trong `/v1`; additive field là default.
+- Thay đổi API trong `/v1` phải tương thích ngược. Mặc định chỉ thêm field.
 - Consumer event deploy trước producer khi thêm field bắt buộc.
 - Feature flag cho provider, dynamic pricing và auto locker.
-- Database migration không phụ thuộc rollback code phá dữ liệu; dùng forward fix cho migration đã có traffic.
-- Canary/rolling deploy chỉ khi mixed-version compatibility đã test.
+- Database migration không được dựa vào rollback code có thể phá dữ liệu. Với migration đã nhận traffic, đội dự án dùng forward fix.
+- Chỉ canary hoặc rolling deploy sau khi đã kiểm thử mixed-version compatibility.
 
 ## 5. Backup và disaster recovery
 
-- Automated backup/PITR; mã hóa và access audit.
-- Quarterly restore drill baseline, ghi actual RPO/RTO.
-- Export cấu hình provider/device và infrastructure-as-code được version control.
+- Automated backup và PITR phải được mã hóa và có access audit.
+- Mỗi quý chạy restore drill và ghi lại RPO/RTO thực tế.
+- Cấu hình provider, device và infrastructure-as-code phải được version control.
 - Recovery order: database → API/device auth → gate access → worker/payment → admin/report.
 
 ## 6. Runbooks bắt buộc
@@ -72,3 +72,12 @@ Cloud/vendor cụ thể không được giả định trong spec này.
 - Outbox age, projection lag, notification failures.
 - DB saturation, slow query, locks/deadlocks, pool usage.
 
+## Thuật ngữ cần biết
+
+| Thuật ngữ | Giải thích dễ hiểu |
+|---|---|
+| Environment | Môi trường chạy hệ thống, như Dev, UAT hoặc Production. |
+| HA | Thiết kế có nhiều thành phần dự phòng để dịch vụ tiếp tục chạy khi một phần gặp lỗi. |
+| PITR | Khôi phục database về một thời điểm cụ thể trong quá khứ. |
+| CI/CD | Quy trình tự động kiểm tra, đóng gói và triển khai phần mềm. |
+| Runbook | Hướng dẫn từng bước để xử lý một sự cố hoặc công việc vận hành. |

@@ -1,11 +1,11 @@
-# REST API conventions
+# Quy ước REST API
 
-## 1. Protocol và versioning
+## 1. Giao thức và phiên bản
 
 - HTTPS + JSON UTF-8.
 - Base path `/api/v1`.
-- OpenAPI 3.1.x được dùng làm machine-readable contract; khóa patch version khi bắt đầu implementation.
-- Breaking change tạo `/v2` hoặc migration contract được duyệt; không đổi nghĩa field âm thầm.
+- OpenAPI 3.1.x là machine-readable contract. Nhóm khóa patch version khi bắt đầu implementation.
+- Breaking change phải tạo `/v2` hoặc dùng migration contract đã được duyệt. Không được tự đổi nghĩa của field hiện có.
 - JSON field dùng `camelCase`; resource URL dùng plural `kebab-case` nếu nhiều từ.
 
 ## 2. Resource design
@@ -19,14 +19,14 @@ POST   /freeze-requests/{requestId}/decisions
 POST   /orders/{orderId}/payment-attempts
 ```
 
-Command có audit/lifecycle riêng được biểu diễn bằng sub-resource (`adjustments`, `decisions`, `cancellations`, `reconciliations`), không dùng endpoint kiểu `/doSomething`.
+Command có audit hoặc lifecycle riêng phải được biểu diễn bằng sub-resource như `adjustments`, `decisions`, `cancellations` và `reconciliations`. Không dùng endpoint dạng `/doSomething`.
 
 ## 3. Identifiers và scope
 
-- Public IDs là opaque UUID string; client không suy diễn thứ tự.
-- `branchId` từ request luôn bị kiểm tra với authenticated scope.
-- Self-service lấy subject từ identity token; không tin `memberId` tùy ý.
-- Device branch/gate lấy từ device identity; body chỉ cross-check.
+- Public ID là một opaque UUID string, vì vậy client không được suy diễn thứ tự.
+- Server luôn đối chiếu `branchId` trong request với authenticated scope.
+- Self-service lấy subject từ identity token và không tin `memberId` do client tùy ý gửi.
+- Branch và gate của device được lấy từ device identity. Giá trị trong body chỉ dùng để cross-check.
 
 ## 4. Time và money
 
@@ -34,11 +34,11 @@ Command có audit/lifecycle riêng được biểu diễn bằng sub-resource (`
 - Date-only: `YYYY-MM-DD` khi thật sự là ngày nghiệp vụ.
 - Interval filter: `from` inclusive, `to` exclusive.
 - Response có timezone khi kết quả phụ thuộc lịch branch.
-- Amount là JSON integer; currency là ISO code. Không dùng float/string đã format trong calculation contract.
+- Amount là JSON integer và currency là ISO code. Calculation contract không dùng float hoặc chuỗi đã format.
 
 ## 5. Pagination/filter/sort
 
-Collection lớn dùng cursor pagination:
+Collection lớn dùng cursor pagination theo cấu trúc sau:
 
 ```json
 {
@@ -51,7 +51,7 @@ Collection lớn dùng cursor pagination:
 ```
 
 - `limit` default 20, max do endpoint contract định nghĩa.
-- Cursor opaque, bound với filter/sort; client không chỉnh sửa.
+- Cursor là opaque và được gắn với filter cùng sort; client không được chỉnh sửa cursor.
 - Sort whitelist, ví dụ `sort=-createdAt,memberCode`.
 - Filter dùng query parameter rõ nghĩa; không nhận raw SQL/filter expression tùy ý.
 - Report aggregate có thể dùng page/offset nếu dataset ổn định nhỏ, nhưng catalog phải ghi rõ.
@@ -64,7 +64,7 @@ Mutation tạo side effect tài chính/quyền/access nhận header:
 Idempotency-Key: <client-generated-opaque-id>
 ```
 
-Server lưu key + actor/client namespace + operation + normalized request hash + response/result reference.
+Server lưu key, actor hoặc client namespace, operation, normalized request hash và reference tới response hoặc result.
 
 - Cùng key/cùng payload: trả cùng semantic result.
 - Cùng key/khác payload: `409 IDEMPOTENCY_KEY_REUSED`.
@@ -74,9 +74,9 @@ Server lưu key + actor/client namespace + operation + normalized request hash +
 
 ## 7. Optimistic concurrency
 
-Mutable aggregate trả `ETag`/`version`. Update/decision nhạy cảm gửi `If-Match` hoặc `expectedVersion`. Mismatch trả `409 VERSION_CONFLICT` với current reference được phép xem.
+Mutable aggregate trả `ETag` hoặc `version`. Update và decision nhạy cảm phải gửi `If-Match` hoặc `expectedVersion`. Nếu version không khớp, server trả `409 VERSION_CONFLICT` cùng current reference mà người dùng được phép xem.
 
-Database lock vẫn dùng cho invariant concurrent; ETag không thay row lock ở gate/capacity/payment.
+Database lock vẫn cần để bảo vệ invariant khi có concurrency. ETag không thay thế row lock trong gate, capacity hoặc payment.
 
 ## 8. HTTP status
 
@@ -96,7 +96,7 @@ Database lock vẫn dùng cho invariant concurrent; ETag không thay row lock �
 | 500 | Lỗi không dự kiến, không lộ internals |
 | 503 | Dependency/service tạm unavailable; `Retry-After` nếu biết |
 
-Gate decision hợp lệ về protocol có thể trả HTTP 200 với `decision=DENY`; lỗi authentication/device/protocol vẫn dùng 4xx/5xx.
+Một gate decision hợp lệ về protocol có thể trả HTTP 200 cùng `decision=DENY`. Lỗi authentication, device hoặc protocol vẫn trả 4xx hoặc 5xx.
 
 ## 9. Error format
 
@@ -115,7 +115,7 @@ Gate decision hợp lệ về protocol có thể trả HTTP 200 với `decision=
 }
 ```
 
-`detail` không chứa stack trace, SQL/provider secret hoặc thông tin resource không được phép xem.
+`detail` không được chứa stack trace, SQL, provider secret hoặc thông tin về resource mà caller không có quyền xem.
 
 ## 10. Validation
 
@@ -139,3 +139,12 @@ Gate decision hợp lệ về protocol có thể trả HTTP 200 với `decision=
 - Correlation ID cho end-to-end order/payment/fulfillment, access/locker.
 - Không dùng header làm quyền nếu không được gateway ký/xác thực.
 
+## Thuật ngữ cần biết
+
+| Thuật ngữ | Giải thích dễ hiểu |
+|---|---|
+| Endpoint | Một địa chỉ API dành cho một loại thao tác cụ thể. |
+| Cursor pagination | Cách phân trang bằng một mã đánh dấu vị trí thay vì số trang. |
+| Idempotency key | Mã giúp server nhận ra request được gửi lại và tránh tạo tác động trùng. |
+| ETag | Giá trị đại diện cho version hiện tại của resource. |
+| Rate limiting | Giới hạn số request trong một khoảng thời gian để bảo vệ hệ thống. |

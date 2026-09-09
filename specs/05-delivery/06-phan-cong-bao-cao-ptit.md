@@ -395,3 +395,13 @@ Nhóm chỉ cần bổ sung thông tin hành chính do giảng viên quy định
 Nhóm gồm bốn thành viên: Đạt, Công, Nam và Nguyên. Đạt phụ trách Chương 1 về tôn chỉ dự án, Chương 2 về quản lý phạm vi và Chương 7 về quản lý giao tiếp. Công phụ trách Chương 6 về quản lý nguồn nhân lực và Chương 9 về quản lý chất lượng. Nam phụ trách Chương 4 về quản lý chi phí và Chương 5 về quản lý mua sắm. Nguyên phụ trách Chương 3 về quản lý thời gian và Chương 8 về quản lý rủi ro.
 
 Mỗi thành viên chịu trách nhiệm viết nội dung, chuẩn bị bảng biểu, kiểm tra số liệu và trình bày phần mình đã làm. Đạt ghép bản cuối và quản lý phiên bản tài liệu. Công kiểm tra cơ cấu nhân lực, RACI và chất lượng. Nam kiểm tra số liệu chi phí và mua sắm. Nguyên kiểm tra tiến độ và Risk Register. Trước khi nộp, cả nhóm đọc lại toàn bộ báo cáo và xác nhận phần công việc của mình.
+
+## Thuật ngữ cần biết
+
+| Thuật ngữ | Giải thích dễ hiểu |
+|---|---|
+| Project Charter | Tài liệu cho biết lý do, mục tiêu, phạm vi lớn và quyền hạn của dự án. |
+| WBS | Cách chia toàn bộ dự án thành các nhóm công việc nhỏ để quản lý. |
+| RACI | Bảng chỉ rõ ai thực hiện, ai chịu trách nhiệm cuối, ai được hỏi ý kiến và ai cần được thông báo. |
+| Critical path | Chuỗi công việc quyết định ngày kết thúc sớm nhất của dự án. |
+| EVM | Phương pháp so sánh tiến độ và chi phí thực tế với kế hoạch. |

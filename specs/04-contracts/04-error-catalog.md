@@ -1,11 +1,11 @@
-# Error catalog
+# Danh mục lỗi
 
 ## 1. Quy tắc
 
-- `code` ổn định cho client; localized `detail` có thể thay đổi.
-- Gate business deny trả decision/reason trong HTTP 200; cùng code ở admin eligibility API có thể là 422.
-- `retryable` chỉ nói technical retry, không nói user được phép override.
-- Client luôn có fallback cho code chưa biết.
+- `code` phải ổn định để client xử lý; localized `detail` có thể thay đổi.
+- Khi gate từ chối vì business rule, API trả decision và reason trong HTTP 200. Cùng một code ở admin eligibility API có thể trả 422.
+- `retryable` chỉ cho biết client có thể technical retry, không có nghĩa user được quyền override.
+- Client phải có fallback cho error code chưa biết.
 
 ## 2. Common/platform
 
@@ -118,4 +118,14 @@
 
 ## 7. Logging rule
 
-Log error theo code/requestId/correlationId và safe metadata. Không log full QR token, signature, payment secret, OTP, password, CVV hoặc full attachment payload.
+Error log phải có code, requestId, correlationId và safe metadata. Log không được chứa full QR token, signature, payment secret, OTP, password, CVV hoặc toàn bộ attachment payload.
+
+## Thuật ngữ cần biết
+
+| Thuật ngữ | Giải thích dễ hiểu |
+|---|---|
+| Error code | Mã ổn định để client biết loại lỗi và chọn cách xử lý. |
+| HTTP status | Mã số cho biết kết quả xử lý request ở mức giao thức. |
+| Retryable | Cho biết request có thể thử lại sau một lỗi kỹ thuật tạm thời. |
+| Fallback | Cách xử lý thay thế khi client gặp code hoặc tình huống chưa biết. |
+| Metadata | Thông tin mô tả thêm cho lỗi, không phải dữ liệu nghiệp vụ chính. |

@@ -1,4 +1,4 @@
-# SunSwim Specification Suite
+# Bộ đặc tả SunSwim
 
 Phiên bản: `1.0-academic-baseline`  
 Ngày tái cấu trúc: `2026-09-09`  
@@ -6,7 +6,7 @@ Ngôn ngữ chuẩn: tiếng Việt; mã, enum và API dùng tiếng Anh.
 
 ## 1. Mục đích
 
-Bộ tài liệu này phân rã BRS-FSD gốc thành các tài liệu nhỏ, có chủ sở hữu và mục đích rõ ràng. Nội dung không chỉ được tách file mà còn được chuẩn hóa theo các lớp:
+Bộ tài liệu tách BRS-FSD gốc thành các file nhỏ để người đọc dễ tìm và quản lý. Mỗi file có mục đích và chủ sở hữu rõ ràng. Nội dung được chia thành năm lớp:
 
 1. Business: mục tiêu, phạm vi, năng lực, actor, quy trình và quy tắc.
 2. Architecture: ranh giới hệ thống, domain, dữ liệu, transaction, event, bảo mật và vận hành.
@@ -14,9 +14,9 @@ Bộ tài liệu này phân rã BRS-FSD gốc thành các tài liệu nhỏ, có
 4. Contracts: quy ước API, danh mục endpoint, event và lỗi.
 5. Delivery: MVP, kiểm thử, rủi ro và điều kiện sẵn sàng.
 
-Tài liệu nguồn: [SunSwim – Detailed Business & Functional Specification (BRS-FSD).md](</home/vuthanhnguyen/Downloads/SunSwim – Detailed Business & Functional Specification (BRS-FSD).md>).
+Tài liệu nguồn: [SunSwim - Detailed Business & Functional Specification (BRS-FSD).md](</home/vuthanhnguyen/Downloads/SunSwim – Detailed Business & Functional Specification (BRS-FSD).md>).
 
-## 2. Cách đọc theo vai trò
+## 2. Thứ tự đọc theo vai trò
 
 | Vai trò | Đọc trước | Đọc tiếp |
 |---|---|---|
@@ -49,7 +49,7 @@ specs/
 - Contracts: [API conventions](04-contracts/01-api-conventions.md), [API catalog](04-contracts/02-api-catalog.md), [Event catalog](04-contracts/03-event-catalog.md), [Error catalog](04-contracts/04-error-catalog.md).
 - Delivery: [Release plan](05-delivery/01-mvp-release-plan.md), [Test strategy](05-delivery/02-acceptance-test-strategy.md), [Risk register](05-delivery/03-risk-register.md), [References](05-delivery/04-references.md), [Review & sign-off](05-delivery/05-review-and-signoff.md), [Phân công báo cáo PTIT](05-delivery/06-phan-cong-bao-cao-ptit.md), [Baseline dự án thật](05-delivery/07-academic-project-baseline.md).
 
-## 4. Quy tắc nguồn dữ liệu chuẩn
+## 4. Thứ tự ưu tiên tài liệu
 
 Khi có mâu thuẫn, ưu tiên theo thứ tự:
 
@@ -59,7 +59,7 @@ Khi có mâu thuẫn, ưu tiên theo thứ tự:
 4. Contract API/event.
 5. BRS-FSD gốc.
 
-Contract không được tự tạo thêm hành vi trái business rule. Nếu code và spec khác nhau, tạo change request, không sửa âm thầm một phía.
+Contract không được thêm hành vi trái với business rule. Nếu code và spec khác nhau, nhóm phải tạo change request thay vì tự sửa một phía.
 
 ## 5. Trạng thái quyết định
 
@@ -69,22 +69,22 @@ Contract không được tự tạo thêm hành vi trái business rule. Nếu co
 | `BASELINED` | Giả định đã được nhóm chốt để lập kế hoạch và viết báo cáo |
 | `DEFERRED` | Chủ động ngoài phạm vi release hiện tại |
 
-## 6. Baseline quan trọng
+## 6. Các baseline chính
 
-- Kiến trúc: modular monolith, một PostgreSQL cluster, worker/scheduler tách process.
-- Ranh giới nhất quán: check-in, consume pass, presence và capacity cùng transaction.
-- Tích hợp bất đồng bộ: transactional outbox, delivery ít nhất một lần, consumer idempotent.
-- Gate MVP: fail closed; lễ tân override theo quyền và bắt buộc lý do.
-- Thời gian: lưu `timestamptz`, tính lịch theo timezone của branch, khoảng thời gian dùng dạng `[start, end)`.
-- Tiền: VND dạng số nguyên ở API; PostgreSQL `numeric(19,0)`.
-- API: REST `/api/v1`, lỗi theo RFC 9457, mutation quan trọng dùng idempotency key.
-- Báo cáo doanh thu MVP: cash basis, chỉ tính payment đã settled trừ refund đã settled.
+- Hệ thống dùng modular monolith, một PostgreSQL cluster và process riêng cho worker/scheduler.
+- Check-in, consume pass, presence và capacity nằm trong cùng transaction.
+- Tích hợp bất đồng bộ dùng transactional outbox. Delivery ít nhất một lần và consumer phải idempotent.
+- Gate trong MVP dùng fail closed. Lễ tân chỉ được override khi có quyền và phải ghi lý do.
+- Database lưu thời gian bằng `timestamptz`. Lịch được tính theo timezone của branch và khoảng thời gian dùng dạng `[start, end)`.
+- API biểu diễn VND bằng số nguyên; PostgreSQL dùng `numeric(19,0)`.
+- API dùng REST `/api/v1`, lỗi theo RFC 9457. Các mutation quan trọng cần idempotency key.
+- Báo cáo doanh thu trong MVP dùng cash basis: payment đã settled trừ refund đã settled.
 
-Các baseline trên đã được nhóm chốt cho mục đích học thuật. Nếu dự án được triển khai thật, Product Owner và owner chuyên môn phải xác nhận lại qua workshop và Change Control Process.
+Nhóm đã chốt các baseline này để làm báo cáo học phần. Khi triển khai thật, Product Owner và owner chuyên môn phải xác nhận lại trong workshop và xử lý thay đổi theo Change Control Process.
 
 ## 7. Definition of specification-ready
 
-Một feature chỉ sẵn sàng vào sprint khi có đủ:
+Một feature chỉ được đưa vào sprint khi có đủ:
 
 - actor và quyền;
 - precondition;
@@ -95,3 +95,13 @@ Một feature chỉ sẵn sàng vào sprint khi có đủ:
 - API/event bị tác động;
 - acceptance criteria kiểm thử được;
 - quyết định P0 liên quan đã đóng.
+
+## Thuật ngữ cần biết
+
+| Thuật ngữ | Giải thích dễ hiểu |
+|---|---|
+| Specification hoặc spec | Tài liệu mô tả hệ thống phải làm gì và phải đáp ứng điều kiện nào. |
+| Baseline | Phiên bản đã được chốt để mọi người cùng dùng làm mốc. |
+| API | Cách các phần mềm trao đổi dữ liệu và gọi chức năng của nhau. |
+| Idempotency | Gửi lại cùng một yêu cầu nhiều lần nhưng hệ thống chỉ tạo tác động một lần. |
+| Source of truth | Nguồn dữ liệu được chọn làm căn cứ chính thức khi các nguồn khác nhau. |

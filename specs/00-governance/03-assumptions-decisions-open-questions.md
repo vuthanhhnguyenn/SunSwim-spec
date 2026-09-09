@@ -66,3 +66,13 @@ Các quyết định trong file này được chốt ở mức `BASELINED` để
 - Redis, dashboard read model và snapshot là dữ liệu dẫn xuất, có thể dựng lại.
 - Dữ liệu dùng trong phát triển và báo cáo học phần là synthetic hoặc đã masking.
 - Báo giá chi tiết chỉ được coi là cam kết sau khi hoàn tất lựa chọn nhà cung cấp.
+
+## Thuật ngữ cần biết
+
+| Thuật ngữ | Giải thích dễ hiểu |
+|---|---|
+| Baseline | Bộ quyết định tạm thời được chốt để nhóm có thể lập kế hoạch thống nhất. |
+| Snapshot | Bản chụp dữ liệu tại một thời điểm, được giữ lại để lịch sử không đổi theo cấu hình mới. |
+| Fail closed | Khi không xác định được quyền truy cập, hệ thống chọn từ chối để bảo đảm an toàn. |
+| Settlement | Xác nhận đáng tin cậy rằng giao dịch thanh toán đã hoàn tất. |
+| Idempotent | Có thể xử lý lại cùng yêu cầu mà không tạo thêm kết quả trùng. |

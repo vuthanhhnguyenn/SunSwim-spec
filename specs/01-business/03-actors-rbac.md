@@ -15,9 +15,9 @@
 | Payment Provider | Webhook trạng thái giao dịch | Provider credential cụ thể |
 | Scheduler/Worker | Expire/resume/reconcile/project | Service account tối thiểu |
 
-## 2. Permission model
+## 2. Mô hình permission
 
-Permission là tổ hợp `action + resource + scope`, ví dụ:
+Mỗi permission gồm `action + resource + scope`. Ví dụ:
 
 ```text
 member.read:branch
@@ -29,39 +29,48 @@ refund.approve:branch
 report.revenue.export:organization
 ```
 
-Không hard-code role vào business logic. Role chỉ là bundle permission; backend luôn kiểm tra permission và branch scope.
+Business logic không được hard-code role. Role chỉ gom các permission; backend vẫn phải kiểm tra permission và branch scope cho từng request.
 
 ## 3. Ma trận quyền rút gọn
 
 | Domain/action | Org Admin | Manager | Reception | Coach | Finance | Member |
 |---|---:|---:|---:|---:|---:|---:|
 | Member R/C/U | A | B | B, field-limited | Assigned R | Limited R | Self |
-| Pass product publish | A | B | R | – | R | R active |
-| Pass issue/adjust/cancel | A | B/A | Issue, limited adjust | – | R | Own R |
-| Access override | A | B | Conditional | – | – | – |
-| Capacity limit change | A | B/A | R | – | – | R optional |
-| Freeze approve | A | B/A | Conditional | – | – | Request |
+| Pass product publish | A | B | R | Không | R | R active |
+| Pass issue/adjust/cancel | A | B/A | Issue, limited adjust | Không | R | Own R |
+| Access override | A | B | Conditional | Không | Không | Không |
+| Capacity limit change | A | B/A | R | Không | Không | R optional |
+| Freeze approve | A | B/A | Conditional | Không | Không | Request |
 | Class manage | A | B | Conditional | Assigned R/U | R | Enroll |
-| Locker emergency unlock | A | Permission | Conditional | – | – | – |
-| Order/payment | A | B | B | – | R | Own online |
-| Refund approve | A | B/A | Request/limited | – | A | Request |
-| Pricing publish | A | B | R | – | R | Quote |
-| Revenue export | A | B | Conditional B | – | B/A | – |
+| Locker emergency unlock | A | Permission | Conditional | Không | Không | Không |
+| Order/payment | A | B | B | Không | R | Own online |
+| Refund approve | A | B/A | Request/limited | Không | A | Request |
+| Pricing publish | A | B | R | Không | R | Quote |
+| Revenue export | A | B | Conditional B | Không | B/A | Không |
 
 `A`: organization-wide, `B`: branch-scoped, `A` trong action nhạy cảm: approval/override.
 
-## 4. Separation of duties
+## 4. Phân tách trách nhiệm
 
-- Refund trên ngưỡng cấu hình: requester không được tự approve.
-- Manual price override trên ngưỡng: cần manager approval.
-- Emergency locker unlock: strong re-authentication và audit reason.
-- Sửa capacity limit khi branch đang hoạt động: manager permission và audit old/new.
-- Support không được xem dữ liệu tài chính/PII ngoài ticket scope.
+- Người tạo refund vượt ngưỡng cấu hình không được tự phê duyệt yêu cầu đó.
+- Manual price override vượt ngưỡng cần Manager phê duyệt.
+- Emergency locker unlock cần xác thực lại ở mức mạnh và phải ghi lý do vào audit.
+- Khi branch đang hoạt động, chỉ người có Manager permission mới được sửa capacity limit. Audit phải lưu cả giá trị cũ và mới.
+- Nhân viên Support không được xem dữ liệu tài chính hoặc PII ngoài phạm vi ticket.
 
 ## 5. Device identity
 
-- Mỗi gate có `device_id` riêng, credential xoay vòng được và gắn cứng với `branch_id/gate_id`.
-- Request khai branch khác claim của device bị từ chối.
-- Device bị revoke không được gọi API kể cả QR hợp lệ.
-- Clock skew, nonce/request ID và rate limit được theo dõi; không tin timestamp device làm thời gian authoritative.
+- Mỗi gate có một `device_id` và credential riêng. Credential có thể xoay vòng và được gắn với `branch_id/gate_id`.
+- Hệ thống từ chối request nếu branch khai báo khác với claim của device.
+- Device đã bị revoke không được gọi API, kể cả khi QR hợp lệ.
+- Hệ thống theo dõi clock skew, nonce/request ID và rate limit. Timestamp từ device không phải thời gian authoritative.
 
+## Thuật ngữ cần biết
+
+| Thuật ngữ | Giải thích dễ hiểu |
+|---|---|
+| Actor | Người, thiết bị hoặc dịch vụ thực hiện hành động với hệ thống. |
+| RBAC | Cách phân quyền dựa trên vai trò của người dùng. |
+| Scope | Phạm vi dữ liệu hoặc chi nhánh mà một quyền được áp dụng. |
+| Separation of duties | Tách các bước nhạy cảm cho nhiều người để một người không tự làm và tự duyệt. |
+| Step-up authentication | Yêu cầu người dùng xác thực lại mạnh hơn trước một thao tác nhạy cảm. |

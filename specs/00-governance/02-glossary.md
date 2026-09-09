@@ -1,4 +1,4 @@
-# Thuật ngữ và ubiquitous language
+# Thuật ngữ dùng thống nhất
 
 | Thuật ngữ | Định nghĩa chuẩn | Không đồng nghĩa với |
 |---|---|---|
@@ -32,5 +32,14 @@
 
 ## Quy ước khoảng thời gian
 
-Mọi khoảng thời gian kỹ thuật dùng dạng nửa mở `[start, end)`. Ví dụ slot 17:00–20:00 cho phép thời điểm `17:00:00`, không cho `20:00:00`. Quy ước này loại bỏ overlap tại ranh giới. Nội dung hiển thị “đến hết ngày” được chuyển thành `end_exclusive` của ngày kế tiếp theo timezone branch.
+Mọi khoảng thời gian kỹ thuật đều dùng dạng nửa mở `[start, end)`. Ví dụ, slot từ 17:00 đến 20:00 nhận thời điểm `17:00:00` nhưng không nhận `20:00:00`. Cách tính này tránh overlap tại ranh giới. Khi giao diện hiển thị "đến hết ngày", hệ thống chuyển giá trị đó thành `end_exclusive` của ngày kế tiếp theo timezone branch.
 
+## Cách hiểu một số từ kỹ thuật
+
+| Thuật ngữ | Giải thích dễ hiểu |
+|---|---|
+| Entitlement | Quyền mà member được sử dụng sau khi mua hoặc được cấp pass. |
+| Opaque token | Chuỗi mã không để người đọc suy ra member hoặc dữ liệu bên trong. |
+| Authoritative | Được hệ thống coi là nguồn chính thức để ra quyết định. |
+| Reconciliation | Đối chiếu dữ liệu giữa các nguồn và ghi nhận phần chênh lệch cần xử lý. |
+| `end_exclusive` | Mốc kết thúc không nằm trong khoảng hiệu lực. |

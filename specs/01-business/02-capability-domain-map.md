@@ -1,17 +1,17 @@
-# Capability map và ranh giới domain
+# Bản đồ capability và ranh giới domain
 
 ## 1. Capability map
 
 | Cấp 1 | Cấp 2 | Release | Domain owner |
 |---|---|---|---|
 | Customer | Member profile, guest, contact | R1 | Customer |
-| Catalog | Pass/class/locker products | R1–R3 | Catalog |
-| Entitlement | Issue, activate, expire, consume, adjust, freeze | R1–R2 | Entitlement |
-| Commerce | Quote, order, payment, refund, receipt, fulfillment | R1–R2 | Commerce |
+| Catalog | Pass/class/locker products | R1 đến R3 | Catalog |
+| Entitlement | Issue, activate, expire, consume, adjust, freeze | R1 đến R2 | Entitlement |
+| Commerce | Quote, order, payment, refund, receipt, fulfillment | R1 đến R2 | Commerce |
 | Access | Credential, decision, session, override | R1 | Access |
-| Facility | Branch, zone, gate, capacity, locker | R1–R2 | Facility |
+| Facility | Branch, zone, gate, capacity, locker | R1 đến R2 | Facility |
 | Training | Class, course, session, coach, enrollment, attendance | R3 | Training |
-| Reporting | Revenue, traffic, occupancy, export | R1–R2 | Reporting |
+| Reporting | Revenue, traffic, occupancy, export | R1 đến R2 | Reporting |
 | Platform | Identity, RBAC, audit, notification, scheduler | R1 | Platform |
 
 ## 2. Bounded contexts
@@ -34,7 +34,7 @@ flowchart TB
     Platform -.-> Access
 ```
 
-## 3. Ownership và source of truth
+## 3. Quyền sở hữu dữ liệu và source of truth
 
 | Dữ liệu | Owner | Consumers không được làm gì |
 |---|---|---|
@@ -48,10 +48,19 @@ flowchart TB
 | Aggregate/read model | Reporting | Ghi ngược transaction gốc |
 | User/role/audit/outbox | Platform | Frontend tự quyết quyền |
 
-## 4. Dependency rule
+## 4. Quy tắc phụ thuộc
 
-- Gọi đồng bộ chỉ dùng khi cần quyết định ngay trong request, ví dụ Access hỏi Entitlement eligibility.
-- Side effect không cần trả ngay dùng event/outbox, ví dụ notification và report projection.
-- Trong modular monolith, module gọi qua application interface, không query trực tiếp table của module khác.
-- Mỗi aggregate có command owner duy nhất; read model có thể join/projection nhưng không sở hữu write.
+- Chỉ gọi đồng bộ khi request cần kết quả ngay, chẳng hạn Access kiểm tra eligibility với Entitlement.
+- Với side effect không cần trả kết quả ngay, hệ thống dùng event/outbox. Notification và report projection thuộc nhóm này.
+- Trong modular monolith, các module liên lạc qua application interface và không query trực tiếp table nội bộ của nhau.
+- Mỗi aggregate chỉ có một command owner. Read model có thể dùng join hoặc projection nhưng không được ghi vào dữ liệu nguồn.
 
+## Thuật ngữ cần biết
+
+| Thuật ngữ | Giải thích dễ hiểu |
+|---|---|
+| Capability | Một nhóm chức năng phục vụ cùng mục tiêu nghiệp vụ. |
+| Domain | Khu vực nghiệp vụ có dữ liệu, quy tắc và trách nhiệm riêng. |
+| Bounded context | Ranh giới xác định một mô hình và cách dùng thuật ngữ trong domain. |
+| Aggregate | Nhóm dữ liệu được thay đổi cùng nhau để giữ business rule. |
+| Projection | Bản dữ liệu được tạo từ nguồn chính để đọc hoặc lập báo cáo nhanh hơn. |

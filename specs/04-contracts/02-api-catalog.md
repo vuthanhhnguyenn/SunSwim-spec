@@ -1,17 +1,17 @@
 # API catalog
 
-Catalog là logical contract để frontend/backend/device thống nhất phạm vi. Request/response schema chi tiết sẽ được baseline trong OpenAPI sau khi các OQ P0 liên quan đóng.
+Catalog là logical contract dùng chung cho frontend, backend và device. Request cùng response schema chi tiết được đưa vào OpenAPI dựa trên các quyết định P0 đã chốt.
 
-## Customer & entitlement
+## Customer và entitlement
 
 | Method/path | Operation | Permission | Idempotency/concurrency |
 |---|---|---|---|
 | `GET /members` | Search/list members | `member.read` + scope | cursor |
 | `POST /members` | Create member | `member.create` | key required |
-| `GET /members/{id}` | Member detail | scoped/self | – |
+| `GET /members/{id}` | Member detail | scoped/self | Không |
 | `PATCH /members/{id}` | Update allowed fields | scoped/self | `If-Match` |
 | `GET /members/{id}/passes` | Pass list/history | scoped/self | cursor |
-| `GET /member-passes/{id}` | Pass detail/ledger summary | scoped/self | – |
+| `GET /member-passes/{id}` | Pass detail/ledger summary | scoped/self | Không |
 | `GET /member-passes/{id}/eligibility` | Explain eligibility | scoped/self/device-internal | no side effect |
 | `POST /member-passes/{id}/adjustments` | Entry/expiry adjustment | `pass.adjust` | key + expected version |
 | `POST /member-passes/{id}/cancellations` | Cancel pass | `pass.cancel` | key + expected version |
@@ -19,7 +19,7 @@ Catalog là logical contract để frontend/backend/device thống nhất phạm
 | `PATCH /pass-products/{id}` | Edit draft/new version | `product.configure` | `If-Match` |
 | `POST /pass-products/{id}/publication` | Publish version | `product.publish` | key + expected version |
 
-## Access & facility
+## Access và facility
 
 | Method/path | Operation | Permission | Notes |
 |---|---|---|---|
@@ -44,7 +44,7 @@ Catalog là logical contract để frontend/backend/device thống nhất phạm
 |---|---|---|---|
 | `GET /freeze-requests` | Work queue/history | scoped/own | cursor |
 | `POST /freeze-requests` | Submit request | scoped/own | key |
-| `GET /freeze-requests/{id}` | Detail | scoped/own | – |
+| `GET /freeze-requests/{id}` | Detail | scoped/own | Không |
 | `POST /freeze-requests/{id}/decisions` | Approve/reject | `freeze.approve` | key + expected version |
 | `POST /freeze-requests/{id}/cancellations` | Cancel | scoped/own | key + expected version |
 | `POST /freeze-periods/{id}/early-resumptions` | Resume early | permission/policy | key + reason |
@@ -65,14 +65,14 @@ Catalog là logical contract để frontend/backend/device thống nhất phạm
 | `GET /coaches/{id}/schedule` | Coach schedule | assigned/scoped | time filter |
 | `PUT /class-sessions/{id}/attendance` | Replace roster outcomes | assigned/manager | `If-Match` + key |
 
-## Commerce & pricing
+## Commerce và pricing
 
 | Method/path | Operation | Permission | Notes |
 |---|---|---|---|
 | `POST /price-quotes` | Resolve sell price | scoped/own | short-lived quote |
 | `POST /orders` | Create order from quote | POS/online | key required |
 | `GET /orders` | Search orders | scoped/own | cursor |
-| `GET /orders/{id}` | Order/payment/fulfillment | scoped/own | – |
+| `GET /orders/{id}` | Order/payment/fulfillment | scoped/own | Không |
 | `POST /orders/{id}/payment-attempts` | Initiate online/QR | scoped/own | key |
 | `POST /orders/{id}/cash-payments` | Settle cash | `payment.cash` | key + shift/branch |
 | `POST /payments/webhooks/{provider}` | Provider callback | signature | provider dedupe |
@@ -96,7 +96,7 @@ Catalog là logical contract để frontend/backend/device thống nhất phạm
 | `GET /reports/capacity` | Occupancy analytics | `report.operations.read` | snapshot/timeline |
 | `GET /reports/classes` | Class utilization | `report.class.read` | scoped |
 | `POST /report-exports` | Async export job | report-specific export | key |
-| `GET /report-exports/{id}` | Job status | creator/scoped | – |
+| `GET /report-exports/{id}` | Job status | creator/scoped | Không |
 | `GET /report-exports/{id}/download` | Authorized download | creator/scoped | short-lived response |
 
 ## Internal-only application contracts
@@ -106,5 +106,14 @@ Catalog là logical contract để frontend/backend/device thống nhất phạm
 - `Reporting.project(event)` → projection tables.
 - `Platform.publishOutbox()` và `Platform.deliverNotification()`.
 
-Các contract nội bộ không public qua HTTP trừ khi sau này tách service; vẫn phải idempotent và versioned.
+Internal contract không được public qua HTTP, trừ khi module được tách thành service sau này. Dù chạy nội bộ, contract vẫn phải có version và hỗ trợ idempotency.
 
+## Thuật ngữ cần biết
+
+| Thuật ngữ | Giải thích dễ hiểu |
+|---|---|
+| Logical contract | Bản mô tả endpoint và hành vi cần có, chưa đi sâu vào mọi field của schema. |
+| Permission | Quyền cho phép một actor thực hiện một action trên resource. |
+| Concurrency | Trường hợp nhiều request cùng đọc hoặc sửa dữ liệu trong một thời điểm. |
+| Callback | Request do hệ thống bên ngoài chủ động gửi về SunSwim khi có kết quả. |
+| Internal contract | Quy ước gọi chức năng giữa các module bên trong hệ thống. |

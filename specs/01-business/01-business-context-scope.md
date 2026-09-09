@@ -2,7 +2,7 @@
 
 ## 1. Vấn đề cần giải quyết
 
-SunSwim cần một nguồn dữ liệu vận hành thống nhất cho bán hàng, entitlement, ra/vào, sức chứa và lớp học. Quy trình rời rạc làm tăng các lỗi có chi phí cao: thu tiền nhưng không cấp quyền, dùng vé hai lần, bể vượt sức chứa, bảo lưu không chặn gate, locker cấp trùng và báo cáo không đối soát được.
+SunSwim cần dùng chung một nguồn dữ liệu cho bán hàng, entitlement, ra vào, sức chứa và lớp học. Khi các quy trình hoạt động rời rạc, hệ thống có thể thu tiền nhưng không cấp quyền, cho dùng vé hai lần, để bể vượt sức chứa, không chặn gate trong thời gian bảo lưu, cấp trùng locker hoặc tạo báo cáo không thể đối soát.
 
 ## 2. Mục tiêu kinh doanh
 
@@ -15,9 +15,9 @@ SunSwim cần một nguồn dữ liệu vận hành thống nhất cho bán hàn
 | OBJ-TRAIN-001 | Vận hành lớp, coach, enrollment, attendance thống nhất | 0 double-booking đã xác nhận |
 | OBJ-REPORT-001 | Số liệu báo cáo có định nghĩa và drill-down | Chênh lệch settlement/report trong tolerance |
 
-## 3. In scope
+## 3. Phạm vi thực hiện
 
-- 1–3 branch trong một tổ chức.
+- Từ 1 đến 3 branch trong một tổ chức.
 - Member/guest, 3 loại pass, lifecycle và usage ledger.
 - POS cash trong R1; online/QR payment integration trong R2.
 - QR gate check-in/out, manual override, live capacity.
@@ -27,7 +27,7 @@ SunSwim cần một nguồn dữ liệu vận hành thống nhất cho bán hàn
 - Admin Web, Member responsive Web/PWA, Device API.
 - RBAC theo branch, audit, notifications nền tảng.
 
-## 4. Out of scope mặc định
+## 4. Ngoài phạm vi mặc định
 
 - Multi-tenant SaaS cho nhiều công ty độc lập.
 - Payroll/commission coach, general ledger, full accounting.
@@ -38,9 +38,9 @@ SunSwim cần một nguồn dữ liệu vận hành thống nhất cho bán hàn
 - Marketing automation/CRM lead pipeline.
 - Lưu dữ liệu thẻ nhạy cảm hoặc tự xử lý card acquiring.
 
-Guardian, waiver và make-up credit đã có policy tối thiểu trong baseline. Household portal đầy đủ, recurring billing và swimmer progression vẫn thuộc deferred backlog; xem `05-delivery/03-risk-register.md` và decision baseline.
+Baseline đã có policy tối thiểu cho guardian, waiver và make-up credit. Household portal đầy đủ, recurring billing và swimmer progression vẫn nằm trong deferred backlog. Chi tiết có trong `05-delivery/03-risk-register.md` và decision baseline.
 
-## 5. Value streams
+## 5. Luồng tạo giá trị
 
 ```mermaid
 flowchart LR
@@ -50,14 +50,24 @@ flowchart LR
 
 ## 6. Business invariants
 
-1. Không có entitlement trả phí trước settlement, trừ free/complimentary override được audit.
-2. Một request idempotent không tạo tác động nghiệp vụ lần hai.
-3. Remaining entries không âm; usage chỉ phát sinh khi access thành công theo policy.
-4. Occupancy không vượt limit nếu không có override hợp lệ.
-5. Lịch sử giá, payment, usage, access và audit không bị sửa để “khớp số”.
-6. Dữ liệu branch bị giới hạn theo phạm vi quyền ở backend.
-7. Cache không quyết định sự thật của payment, pass usage hoặc capacity.
+1. Hệ thống không cấp entitlement trả phí trước settlement, trừ free hoặc complimentary override có audit.
+2. Khi gửi lại một request idempotent, hệ thống không tạo thêm tác động nghiệp vụ.
+3. Remaining entries không được âm. Usage chỉ phát sinh khi access thành công theo policy.
+4. Occupancy không được vượt limit nếu không có override hợp lệ.
+5. Không sửa lịch sử giá, payment, usage, access hoặc audit chỉ để "khớp số".
+6. Backend phải giới hạn dữ liệu branch theo phạm vi quyền.
+7. Cache không phải nguồn quyết định cho payment, pass usage hoặc capacity.
 
-## 7. Benchmark gap có chủ đích
+## 7. Phạm vi còn thiếu so với sản phẩm tham khảo
 
-Các sản phẩm quản lý aquatic/sports hiện có thường kết nối membership, POS, class, booking và access; nhóm swim-school còn nhấn mạnh family/guardian, waiver, progression, make-up credits và recurring billing. SunSwim MVP tập trung sâu hơn vào access/capacity/pass, nhưng cần Business quyết định sớm family/guardian và waiver nếu phục vụ lớp trẻ em. Nguồn benchmark được ghi tại `05-delivery/04-references.md`.
+Các sản phẩm quản lý aquatic hoặc sports thường kết nối membership, POS, class, booking và access. Phần mềm dành cho swim school còn có family/guardian, waiver, progression, make-up credit và recurring billing. SunSwim MVP tập trung vào access, capacity và pass. Nếu cung cấp lớp trẻ em, Business cần quyết định sớm policy cho family/guardian và waiver. Danh sách nguồn tham khảo nằm trong `05-delivery/04-references.md`.
+
+## Thuật ngữ cần biết
+
+| Thuật ngữ | Giải thích dễ hiểu |
+|---|---|
+| Entitlement | Quyền sử dụng dịch vụ mà member nhận được từ pass. |
+| Settlement | Trạng thái thanh toán đã được xác nhận đủ tin cậy để cấp dịch vụ. |
+| Manual override | Thao tác cho phép nhân viên xử lý khác với quyết định tự động, kèm quyền và lý do. |
+| Deferred backlog | Danh sách chức năng đã hoãn sang giai đoạn sau. |
+| Invariant | Điều kiện luôn phải đúng, dù có nhiều giao dịch chạy cùng lúc. |

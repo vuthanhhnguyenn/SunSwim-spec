@@ -1,8 +1,8 @@
-# Business rule catalog
+# Danh mục business rule
 
-Đây là index authoritative. Nội dung chi tiết và ví dụ nằm trong functional spec tương ứng.
+Đây là danh mục business rule chuẩn. Mỗi functional spec sẽ giải thích rule tương ứng và cung cấp ví dụ chi tiết.
 
-## Customer & entitlement
+## Customer và entitlement
 
 | ID | Rule chuẩn hóa | Mức |
 |---|---|---|
@@ -17,7 +17,7 @@
 | BR-MEM-009 | Product update không hồi tố Member Pass đã cấp, trừ migration được duyệt | MUST |
 | BR-MEM-010 | Adjustment lượt là ledger entry có reason/actor, không sửa counter trực tiếp | MUST |
 
-## Access & facility
+## Access và facility
 
 | ID | Rule chuẩn hóa | Mức |
 |---|---|---|
@@ -63,7 +63,7 @@
 | BR-LCK-003 | Checkout phát lệnh release idempotent; lỗi thiết bị không xóa assignment | MUST |
 | BR-LCK-004 | Maintenance/emergency locker không được assign | MUST |
 
-## Commerce & pricing
+## Commerce và pricing
 
 | ID | Rule chuẩn hóa | Mức |
 |---|---|---|
@@ -76,7 +76,7 @@
 | BR-PRC-002 | Rule evaluation deterministic theo priority và calculation mode | MUST |
 | BR-PRC-003 | Published rule có effective range, scope và không hồi tố order | MUST |
 
-## Reporting & platform
+## Reporting và platform
 
 | ID | Rule chuẩn hóa | Mức |
 |---|---|---|
@@ -87,3 +87,12 @@
 | BR-PLT-002 | Backend kiểm tra permission và branch scope cho mọi request | MUST |
 | BR-PLT-003 | Soft delete/cancel/archive thay hard delete cho dữ liệu giao dịch | MUST |
 
+## Thuật ngữ cần biết
+
+| Thuật ngữ | Giải thích dễ hiểu |
+|---|---|
+| Business rule | Quy tắc nghiệp vụ mà hệ thống phải tuân theo. |
+| MUST | Yêu cầu bắt buộc phải thực hiện. |
+| SHOULD | Yêu cầu nên thực hiện; chỉ bỏ khi có lý do được chấp nhận. |
+| Deterministic | Cùng dữ liệu đầu vào và cùng rule thì luôn cho cùng kết quả. |
+| Soft delete | Đánh dấu dữ liệu là đã hủy hoặc không còn dùng nhưng vẫn giữ lịch sử. |

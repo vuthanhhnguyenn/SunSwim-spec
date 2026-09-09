@@ -1,6 +1,6 @@
 # System context và trust boundaries
 
-## 1. System context
+## 1. Bối cảnh hệ thống
 
 ```mermaid
 flowchart LR
@@ -16,21 +16,21 @@ flowchart LR
 
 ## 2. System boundary
 
-SunSwim sở hữu:
+SunSwim quản lý các dữ liệu và quy trình sau:
 
 - member profile, pass, usage, access session và capacity state;
 - product/price quote/order/fulfillment;
 - class/enrollment/attendance và locker assignment;
 - operational report projection, audit và notification intent.
 
-External provider sở hữu:
+Các external provider chịu trách nhiệm cho:
 
 - card/bank authorization và settlement evidence;
 - delivery status cuối cùng của email/SMS/push;
 - physical gate/lock actuation và device health;
 - accounting/e-invoice record nếu tích hợp ngoài.
 
-## 3. Trust boundaries
+## 3. Ranh giới tin cậy
 
 | Boundary | Không được tin trực tiếp | Control bắt buộc |
 |---|---|---|
@@ -41,16 +41,26 @@ External provider sở hữu:
 | Admin export → user | quyền tồn tại mãi | authorize khi tạo và khi tải, signed URL ngắn hạn |
 | Smart lock → system | command đã thực thi | correlation ID, acknowledgment, timeout, reconciliation |
 
-## 4. External interface assumptions
+## 4. Giả định về giao diện bên ngoài
 
-- Payment và locker/gate provider cụ thể được chọn qua Procurement Plan; contract adapter phải che khác biệt provider.
-- Gate có network ổn định trong MVP; mất kết nối dùng fail closed + reception override.
-- Notification không nằm trên critical path của payment/access.
-- Export file lưu object storage private, mã hóa và tự hết hạn.
+- Nhà cung cấp payment, locker và gate sẽ được chọn theo Procurement Plan. Contract adapter phải che phần khác nhau giữa các provider.
+- Trong MVP, gate được giả định có kết nối mạng ổn định. Khi mất mạng, gate dùng fail closed và lễ tân xử lý bằng override.
+- Notification không nằm trên critical path của payment hoặc access.
+- File export được mã hóa, lưu trong private object storage và tự hết hạn.
 
 ## 5. Context-level risks
 
-- Physical access không thể đạt “exactly once” chỉ bằng phần mềm nếu gate mở thất bại sau response.
-- Payment/webhook và lock commands có retry, duplicate, out-of-order.
-- Device clock có thể lệch; server clock là authoritative.
-- Branch network chập chờn tác động trực tiếp gate MVP; cần runbook và manual fallback.
+- Phần mềm không thể bảo đảm physical access "exactly once" nếu gate không mở sau khi hệ thống đã trả response.
+- Payment webhook và lock command có thể bị retry, trùng hoặc đến sai thứ tự.
+- Đồng hồ của device có thể lệch, vì vậy hệ thống dùng thời gian của server làm chuẩn.
+- Mạng tại branch không ổn định sẽ ảnh hưởng trực tiếp đến gate trong MVP. Đội vận hành cần có runbook và phương án xử lý thủ công.
+
+## Thuật ngữ cần biết
+
+| Thuật ngữ | Giải thích dễ hiểu |
+|---|---|
+| System context | Sơ đồ cho biết hệ thống giao tiếp với người dùng và hệ thống bên ngoài nào. |
+| Trust boundary | Ranh giới mà dữ liệu đi qua và phải được kiểm tra lại trước khi tin cậy. |
+| Provider | Đơn vị hoặc dịch vụ bên ngoài cung cấp payment, notification hay thiết bị. |
+| Acknowledgement hoặc ack | Tín hiệu xác nhận thiết bị đã nhận hoặc thực hiện command. |
+| Fail closed | Khi gặp lỗi hoặc mất kết nối, hệ thống từ chối truy cập thay vì tự cho phép. |

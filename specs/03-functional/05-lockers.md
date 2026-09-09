@@ -1,12 +1,12 @@
-# Functional Spec 05: Locker Management
+# Đặc tả chức năng 05: Quản lý Locker
 
 ## 1. Mục tiêu
 
-Quản lý locker vật lý, temporary assignment theo access session, fixed rental và trạng thái thiết bị mà không cấp trùng.
+Module quản lý locker vật lý, temporary assignment theo access session, fixed rental và trạng thái thiết bị. Một locker không được cấp trùng.
 
-## 2. Mô hình trạng thái được làm rõ
+## 2. Hai nhóm trạng thái
 
-Bản gốc trộn trạng thái vận hành và trạng thái sử dụng. Baseline tách hai chiều:
+Bản gốc dùng chung một nhóm cho trạng thái vận hành và trạng thái sử dụng. Baseline tách chúng thành hai nhóm riêng:
 
 ### Operational status
 
@@ -15,14 +15,14 @@ Bản gốc trộn trạng thái vận hành và trạng thái sử dụng. Base
 - `EMERGENCY_LOCKED`
 - `RETIRED`
 
-### Allocation state dẫn xuất
+### Allocation state được tính từ dữ liệu
 
 - `AVAILABLE`: in service, không có active reservation/assignment.
 - `RESERVED`: có reservation chưa bắt đầu/hết TTL.
 - `OCCUPIED`: có active temporary assignment/fixed rental.
 - `PENDING_CLEARANCE`: fixed rental hết hạn nhưng chưa bàn giao.
 
-Một locker chỉ assign được khi `IN_SERVICE + AVAILABLE`.
+Chỉ được assign locker khi locker ở trạng thái `IN_SERVICE + AVAILABLE`.
 
 ## 3. Assignment lifecycle
 
@@ -41,42 +41,42 @@ stateDiagram-v2
 
 ## 4. Actors và permissions
 
-- Manager: create/configure, fixed rental, maintenance, emergency unlock.
-- Receptionist: view, temporary/fixed assign, release trong branch; maintenance/unlock theo permission.
-- Member: xem locker của own open session/rental.
-- Smart Locker Gateway: ack command/status; không quyết định assignment.
+- Manager được tạo và cấu hình locker, quản lý fixed rental, maintenance và emergency unlock.
+- Receptionist được xem, cấp temporary hoặc fixed locker và release trong branch. Maintenance và unlock phụ thuộc vào permission.
+- Member chỉ xem locker thuộc open session hoặc rental của mình.
+- Smart Locker Gateway gửi ack cho command và status, nhưng không quyết định assignment.
 
 ## 5. Assignment rules
 
 - Locker, member và access session phải cùng branch.
-- Temporary assignment phải gắn `access_session_id` và không vượt session.
+- Temporary assignment phải gắn với `access_session_id` và không được kéo dài quá session.
 - Fixed rental dùng interval `[start,end)` và không overlap assignment/rental khác.
 - Locker hết fixed rental không tự `AVAILABLE` nếu policy cần inspection; chuyển `PENDING_CLEARANCE`.
-- Selection deterministic theo zone/type/priority/number hoặc distribution strategy version.
-- Database exclusion/lock bảo đảm không double assignment.
+- Việc chọn locker phải deterministic theo zone, type, priority, number hoặc distribution strategy version.
+- Database exclusion và lock phải ngăn double assignment.
 
 ## 6. Auto assignment at check-in
 
 1. Sau eligibility/capacity pass, kiểm tra branch policy.
-2. Nếu locker optional, check-in commit trước hoặc locker logic cùng transaction nhưng failure không rollback access.
+2. Nếu locker là optional, check-in có thể commit trước. Nếu xử lý locker trong cùng transaction, lỗi locker cũng không được rollback access.
 3. Nếu required, lock candidate locker trước commit; không có thì deny `LOCKER_UNAVAILABLE` và không consume/capacity.
 4. Create assignment `ACTIVE`; physical credential command được gửi qua outbox sau commit.
-5. Response có locker number/zone, không lộ smart lock secret.
+5. Response có locker number và zone nhưng không được để lộ smart lock secret.
 
-Locker là tùy chọn nên access transaction không giữ khóa trên nhiều locker row. Việc cấp locker chạy sau khi check-in thành công bằng một transaction riêng có unique constraint.
+Vì locker là tùy chọn, access transaction không giữ lock trên nhiều locker row. Sau khi check-in thành công, hệ thống cấp locker bằng một transaction riêng có unique constraint.
 
 ## 7. Release
 
 - Checkout tạo logical release command idempotent.
 - Locker không IoT: assignment `RELEASED` cùng transaction checkout.
 - Locker IoT: `RELEASE_PENDING`, gửi reset command, ack chuyển `RELEASED`.
-- Timeout/failed ack tạo operations task; không tự cấp locker lại khi physical state chưa an toàn.
+- Timeout hoặc failed ack tạo một operations task. Hệ thống không tự cấp lại locker khi trạng thái vật lý chưa an toàn.
 - Manual release/emergency unlock bắt buộc reason và audit.
 
 ## 8. Fixed rental
 
 1. Quote/order/payment thuộc Commerce.
-2. Fulfillment idempotent tạo rental/assignment với agreed range.
+2. Fulfillment idempotent tạo rental hoặc assignment theo khoảng thời gian đã thống nhất.
 3. Gia hạn tạo/extend range theo rule, không overlap.
 4. Expiry job chuyển `PENDING_CLEARANCE` hoặc `RELEASE_PENDING`.
 5. Refund/cancel dùng compensation workflow, không xóa rental.
@@ -115,3 +115,13 @@ Locker là tùy chọn nên access transaction không giữ khóa trên nhiều 
 ## 13. Quyết định baseline
 
 Locker là tùy chọn. Device integration dùng adapter với signed command và acknowledgement; credential được đổi cho mỗi assignment. Reset hoặc emergency unlock chỉ thành công sau ack vật lý trong 10 giây. Fixed locker hết hạn phải được kiểm tra trong 24 giờ trước khi về `AVAILABLE`. Chi tiết truy vết tại `OQ-007`.
+
+## Thuật ngữ cần biết
+
+| Thuật ngữ | Giải thích dễ hiểu |
+|---|---|
+| Temporary assignment | Việc cấp locker tạm thời cho một access session. |
+| Fixed rental | Việc thuê một locker cố định trong một khoảng thời gian. |
+| Allocation state | Trạng thái cho biết locker đang trống, được giữ chỗ hay đang sử dụng. |
+| Acknowledgement hoặc ack | Phản hồi xác nhận thiết bị đã thực hiện command. |
+| Unique constraint | Ràng buộc database ngăn tạo hai bản ghi trùng theo điều kiện đã chọn. |

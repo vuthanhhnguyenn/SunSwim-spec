@@ -1,10 +1,10 @@
-# Functional Spec 07: Scheduling và Dynamic Pricing
+# Đặc tả chức năng 07: Lịch và Dynamic Pricing
 
 ## 1. Mục tiêu
 
-Cấu hình giờ mở cửa, slot, holiday/special event, price rules và pass access rules có hiệu lực theo branch/time một cách deterministic và giải thích được.
+Module cấu hình giờ mở cửa, slot, holiday hoặc special event, price rule và pass access rule theo branch và thời gian. Kết quả phải deterministic và có thể giải thích.
 
-## 2. Tách khái niệm
+## 2. Các khái niệm riêng biệt
 
 | Khái niệm | Mục đích |
 |---|---|
@@ -14,22 +14,22 @@ Cấu hình giờ mở cửa, slot, holiday/special event, price rules và pass 
 | Entitlement Time Rule | Cho/không cho pass sử dụng tại thời điểm access |
 | Holiday Calendar | Ngày đặc biệt đã publish cho branch/organization |
 
-Price rule không tự làm pass invalid; entitlement restriction không tự thay đổi order price nếu không có rule tương ứng.
+Price rule không tự làm pass invalid. Entitlement restriction cũng không tự thay đổi order price nếu không có rule tương ứng.
 
 ## 3. Time semantics
 
 - Rule/slot interval dùng `[start,end)` theo branch timezone.
-- Slot qua nửa đêm được biểu diễn rõ bằng hai segment hoặc `end_day_offset=1`.
+- Slot kéo dài qua nửa đêm phải được biểu diễn bằng hai segment hoặc `end_day_offset=1`.
 - Calendar date resolve theo branch, không UTC date.
-- DST được library timezone xử lý nếu sau này có branch ngoài Việt Nam.
+- Nếu sau này có branch ngoài Việt Nam, timezone library sẽ xử lý DST.
 - Rule publish cần preview các boundary exact start/end.
 
 ## 4. Slot rules
 
 - `start < end` trong segment.
-- Không overlap nếu cùng `coverage_group` yêu cầu partition; overlap khác group được phép.
+- Nếu cùng `coverage_group` yêu cầu partition, các slot không được overlap. Slot thuộc group khác có thể overlap.
 - Effective date range và weekday required.
-- Sửa slot đã referenced tạo version/effective change, không đổi order/pass snapshot cũ.
+- Khi sửa slot đã được reference, hệ thống tạo version hoặc effective change mới và giữ nguyên snapshot cũ của order hoặc pass.
 
 ## 5. Price rule model
 
@@ -42,7 +42,7 @@ Mỗi rule có:
 - `priority`, `exclusive_group`, `stackable`, `calculation_mode`;
 - reason label hiển thị khách hàng.
 
-## 6. Deterministic evaluation baseline
+## 6. Cách tính giá theo thứ tự cố định
 
 1. Load published rules cùng pricing snapshot version.
 2. Filter effective time/scope/condition.
@@ -53,7 +53,7 @@ Mỗi rule có:
 7. Apply floor/cap nếu policy có.
 8. Round một lần theo currency policy; grand total không âm.
 
-Priority/calculation mode phải hiện trong admin preview. Nếu Business muốn semantics khác, cập nhật DEC và regression fixtures trước publish.
+Admin preview phải hiển thị priority và calculation mode. Nếu Business đổi cách tính, nhóm phải cập nhật DEC và regression fixture trước khi publish.
 
 ## 7. Quote contract
 
@@ -75,20 +75,20 @@ Quote trả:
 }
 ```
 
-Create order gửi `quoteId`; server không tin amount client và revalidate expiry/fingerprint.
+Khi tạo order, client gửi `quoteId`. Server không dùng amount do client cung cấp và phải kiểm tra lại expiry cùng fingerprint.
 
 ## 8. Pass access rule evaluation
 
-At server time, resolve branch timezone, opening hours, pass branch scope, applicable time rule và exception calendar. Deny code phân biệt `BRANCH_CLOSED`, `TIME_RESTRICTION`, `HOLIDAY_RESTRICTION`. Optional paid upgrade/surcharge tại gate ngoài MVP cho đến khi có safe purchase flow.
+Tại thời gian của server, hệ thống xác định branch timezone, opening hours, branch scope của pass, time rule và exception calendar phù hợp. Deny code phải phân biệt `BRANCH_CLOSED`, `TIME_RESTRICTION` và `HOLIDAY_RESTRICTION`. Paid upgrade hoặc surcharge tùy chọn tại gate nằm ngoài MVP cho tới khi có purchase flow an toàn.
 
 ## 9. Publish workflow
 
 1. Manager tạo Draft.
 2. Validate overlap/scope/value/range.
-3. Preview matrix với sample dates including boundary/holiday.
+3. Preview matrix bằng các sample date có cả boundary và holiday.
 4. Compare impact với current published version.
 5. Publish có `effective_from` tương lai hoặc permission đặc biệt cho immediate.
-6. Audit old/new và emit config event; invalidate cache bằng version.
+6. Audit giá trị old/new, phát config event và invalidate cache bằng version.
 
 ## 10. API impacts
 
@@ -119,3 +119,13 @@ At server time, resolve branch timezone, opening hours, pass branch scope, appli
 ## 13. Quyết định baseline
 
 Operations công bố lịch ngày lễ năm kế tiếp trước ngày 01/12. Rule có scope cụ thể hơn được xét trước, sau đó theo priority, effective time và ID. Trong cùng non-stackable group chỉ lấy rule ưu tiên cao nhất. Giá đã gồm thuế và làm tròn đến 1 VND. Member segment có trong Release 2; coupon, promotion code và gate surcharge upgrade được deferred. Chi tiết truy vết tại `OQ-009` và `OQ-014`.
+
+## Thuật ngữ cần biết
+
+| Thuật ngữ | Giải thích dễ hiểu |
+|---|---|
+| Dynamic pricing | Cách thay đổi giá theo thời gian, chi nhánh, nhóm khách hoặc điều kiện khác. |
+| Slot | Một khung giờ vận hành được đặt tên và cấu hình. |
+| Deterministic | Cùng dữ liệu và rule thì hệ thống luôn tính ra cùng kết quả. |
+| Priority | Thứ tự dùng để chọn rule nào được xét trước. |
+| Fingerprint | Mã đại diện cho nội dung quote, giúp phát hiện dữ liệu đã bị thay đổi. |

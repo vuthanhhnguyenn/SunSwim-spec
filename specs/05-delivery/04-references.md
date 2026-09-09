@@ -1,6 +1,6 @@
-# Tham khảo và benchmark
+# Nguồn tham khảo và benchmark
 
-Các nguồn dưới đây dùng để kiểm tra cách tiếp cận, không phải tuyên bố SunSwim tương thích/chứng nhận và không phải endorsement nhà cung cấp.
+Các nguồn dưới đây giúp nhóm kiểm tra cách tiếp cận. Việc đưa một nguồn vào danh sách không có nghĩa SunSwim đã tương thích, được chứng nhận hoặc endorsement nhà cung cấp đó.
 
 ## 1. Standards và architecture
 
@@ -16,7 +16,7 @@ Các nguồn dưới đây dùng để kiểm tra cách tiếp cận, không ph�
 | [PostgreSQL explicit locking](https://www.postgresql.org/docs/current/explicit-locking.html) | Row locking và deadlock considerations cho gate/capacity/payment |
 | [PostgreSQL date/time types](https://www.postgresql.org/docs/current/datatype-datetime.html) | `timestamptz`, timezone và date semantics |
 
-Phiên bản PostgreSQL/runtime cụ thể chưa được giả định. Khi stack được chọn, cần pin version và đối chiếu documentation đúng version trước khi viết DDL.
+Tài liệu chưa giả định phiên bản PostgreSQL hoặc runtime cụ thể. Sau khi chọn stack, nhóm phải pin version và đọc đúng documentation của version đó trước khi viết DDL.
 
 ## 2. Aquatics/leisure product benchmark
 
@@ -29,8 +29,17 @@ Phiên bản PostgreSQL/runtime cụ thể chưa được giả định. Khi sta
 
 ## 3. Nguyên tắc sử dụng benchmark
 
-- Không sao chép UI/workflow nhà cung cấp.
-- Không thêm feature chỉ vì đối thủ có; cần value, owner, release và acceptance criteria.
-- Capability liên quan safety, finance, minors hoặc privacy phải qua domain/legal review.
-- Marketing claim không được dùng làm bằng chứng kiến trúc/performance.
+- Không sao chép UI hoặc workflow của nhà cung cấp.
+- Không thêm feature chỉ vì một sản phẩm khác có. Mỗi feature cần có value, owner, release và acceptance criteria.
+- Capability liên quan đến safety, finance, minor hoặc privacy phải qua domain review và legal review.
+- Không dùng marketing claim làm bằng chứng cho kiến trúc hoặc performance.
 
+## Thuật ngữ cần biết
+
+| Thuật ngữ | Giải thích dễ hiểu |
+|---|---|
+| Benchmark | Sản phẩm hoặc tài liệu được dùng làm mốc để so sánh cách tiếp cận. |
+| Standard | Bộ quy tắc hoặc đặc tả được một tổ chức công bố để các hệ thống áp dụng thống nhất. |
+| Endorsement | Việc một tổ chức chính thức ủng hộ hoặc xác nhận một sản phẩm. |
+| Pin version | Chọn và cố định một phiên bản cụ thể để tránh thay đổi ngoài ý muốn. |
+| DDL | Nhóm câu lệnh dùng để tạo hoặc thay đổi cấu trúc database. |

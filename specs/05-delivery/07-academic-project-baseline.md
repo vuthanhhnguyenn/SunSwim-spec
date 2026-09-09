@@ -261,3 +261,14 @@ Các câu hỏi từng ghi Open hoặc Pending được chốt thành baseline h
 5. PM cập nhật version history và thông báo theo Communication Plan.
 
 Sau M5, dự án ưu tiên đổi phạm vi theo nguyên tắc bỏ hoặc lùi hạng mục ít quan trọng trước khi kéo dài ngày go-live. Không sử dụng management reserve để che giấu việc vượt cost baseline.
+
+## Thuật ngữ cần biết
+
+| Thuật ngữ | Giải thích dễ hiểu |
+|---|---|
+| Baseline | Phiên bản kế hoạch đã chốt để theo dõi và kiểm soát thay đổi. |
+| ROM estimate | Ước lượng ban đầu có khoảng sai số tương đối rộng khi chưa có báo giá chi tiết. |
+| FTE | Khối lượng làm việc tương đương một người làm toàn thời gian. |
+| Person-month | Khối lượng công việc tương đương một người làm trong một tháng. |
+| Contingency reserve | Khoản dự phòng cho các rủi ro đã nhận diện. |
+| Management reserve | Khoản dự phòng nằm ngoài cost baseline, chỉ dùng cho thay đổi chưa lường trước và cần cấp có thẩm quyền duyệt. |

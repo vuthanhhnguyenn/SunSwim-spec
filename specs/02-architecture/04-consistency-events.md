@@ -1,4 +1,4 @@
-# Consistency, concurrency và event architecture
+# Kiến trúc consistency, concurrency và event
 
 ## 1. Consistency model
 
@@ -32,7 +32,7 @@ COMMIT
 return stored decision
 ```
 
-Mọi DENY được ghi thành access event theo policy nhưng không consume/increment. Retry cùng request ID trả response đã lưu. Duplicate scan với request ID khác trong debounce window trả `DUPLICATE_SCAN` và không tạo side effect; có thể vẫn tăng metric chống abuse.
+Mỗi quyết định DENY được ghi thành access event theo policy nhưng không consume pass hoặc tăng capacity. Khi retry cùng request ID, hệ thống trả response đã lưu. Nếu cùng credential được quét lại trong debounce window bằng request ID khác, hệ thống trả `DUPLICATE_SCAN` và không tạo side effect. Metric chống abuse vẫn có thể tăng.
 
 ## 3. Checkout algorithm
 
@@ -53,18 +53,18 @@ stateDiagram-v2
     APPLIED --> [*]
 ```
 
-Processor phải:
+Processor thực hiện các bước sau:
 
-1. Giữ raw body vừa đủ để verify theo policy, không log secret.
+1. Giữ raw body đủ để verify theo policy và không ghi secret vào log.
 2. Xác minh signature, provider account, amount, currency và merchant reference.
 3. Deduplicate provider event/transaction.
-4. Chỉ cho state transition hợp lệ; stale/out-of-order event không lùi trạng thái.
+4. Chỉ chấp nhận state transition hợp lệ. Event cũ hoặc đến sai thứ tự không được đưa trạng thái lùi lại.
 5. Ghi payment change và outbox trong cùng transaction.
 6. Trả success cho duplicate đã xử lý để provider dừng retry.
 
 ## 5. Transactional outbox
 
-Business state và outbox row được commit cùng transaction. Relay publish sau commit, retry có backoff và chuyển dead-letter sau ngưỡng. Delivery là at-least-once, vì vậy:
+Business state và outbox row được commit trong cùng transaction. Relay chỉ publish sau commit, dùng backoff khi retry và chuyển sang dead-letter sau khi vượt ngưỡng. Vì delivery là at-least-once:
 
 - event có `id`, `source`, `type`, `subject`, `time`, `correlationid`, `causationid`, `dataschema`, `data`;
 - consumer ghi inbox/checkpoint trước hoặc cùng transaction xử lý;
@@ -73,12 +73,21 @@ Business state và outbox row được commit cùng transaction. Relay publish s
 
 ## 6. Scheduler correctness
 
-Eligibility không được chỉ tin scheduler đã chuyển status. Nó luôn đánh giá effective timestamps. Scheduler giúp materialize state, gửi notification và reconciliation. Job phải idempotent, có lease và lưu `last_success_at`, cursor, duration, affected rows, error.
+Eligibility luôn đánh giá effective timestamp thay vì chỉ dựa vào status do scheduler chuyển. Scheduler dùng để materialize state, gửi notification và chạy reconciliation. Mỗi job phải idempotent, có lease và lưu `last_success_at`, cursor, duration, affected rows và error.
 
 ## 7. Compensation boundaries
 
 - DB transaction rollback cho check-in trước response.
-- Sau khi physical gate đã mở, không thể “rollback” vật lý; dùng compensation/recovery event.
+- Sau khi physical gate đã mở, hệ thống không thể "rollback" hành động vật lý. Trường hợp này phải dùng compensation hoặc recovery event.
 - Payment settlement không đảo bằng cách sửa trạng thái; dùng refund/reversal transaction.
 - Notification failure không rollback payment/fulfillment.
 
+## Thuật ngữ cần biết
+
+| Thuật ngữ | Giải thích dễ hiểu |
+|---|---|
+| Strong consistency | Sau khi giao dịch hoàn tất, mọi lần đọc liên quan phải thấy ngay kết quả đúng. |
+| Eventual consistency | Dữ liệu ở phần khác có thể cập nhật chậm một khoảng ngắn nhưng cuối cùng phải khớp. |
+| Transactional outbox | Lưu thay đổi nghiệp vụ và yêu cầu phát event trong cùng transaction để không mất event. |
+| DLQ | Hàng đợi chứa event đã thử xử lý nhiều lần nhưng vẫn lỗi. |
+| Compensation | Hành động bù lại tác động đã xảy ra khi không thể rollback trực tiếp. |

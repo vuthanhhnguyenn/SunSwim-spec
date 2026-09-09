@@ -1,6 +1,6 @@
 # Ma trận truy vết yêu cầu
 
-Ma trận này ở mức capability để điều hướng. Mỗi functional spec chứa acceptance criteria chi tiết.
+Ma trận dưới đây nối từng capability với business rule, functional spec, tài liệu kiến trúc và release. Acceptance criteria chi tiết nằm trong từng functional spec.
 
 | Capability | Objective/BR gốc | Functional spec | Architecture/contract | Release |
 |---|---|---|---|---|
@@ -18,13 +18,23 @@ Ma trận này ở mức capability để điều hướng. Mỗi functional spe
 
 ## Coverage gate
 
-Một requirement được coi là “covered” khi có đủ bốn liên kết:
+Một requirement được xem là "covered" khi có đủ bốn liên kết:
 
 `Business rule → Functional behavior → Contract/data impact → Acceptance test`.
 
-Các điểm cần xác nhận lại trước khi ký hợp đồng hoặc go-live:
+Trước khi ký hợp đồng hoặc go-live, nhóm cần xác nhận lại các điểm sau:
 
-- API schema đang là logical contract; binding cụ thể được bổ sung sau vendor selection.
+- API schema hiện là logical contract. Binding cụ thể sẽ được bổ sung sau khi chọn vendor.
 - Tax đã có baseline giá gồm thuế; e-invoice nằm ngoài phạm vi giai đoạn này.
-- Capacity kiểm soát đồng thời theo branch và pool zone; member chỉ có một open session toàn chuỗi.
+- Hệ thống kiểm soát capacity theo cả branch và pool zone. Một member chỉ có một open session trong toàn chuỗi.
 - Guardian và waiver bắt buộc với member dưới 16 tuổi; household portal đầy đủ vẫn là deferred backlog.
+
+## Thuật ngữ cần biết
+
+| Thuật ngữ | Giải thích dễ hiểu |
+|---|---|
+| Traceability | Khả năng lần theo quan hệ giữa yêu cầu, chức năng, thiết kế và kiểm thử. |
+| Capability | Nhóm năng lực nghiệp vụ mà hệ thống phải cung cấp. |
+| Contract | Quy ước dữ liệu và hành vi giữa hai thành phần phần mềm. |
+| Acceptance test | Bài kiểm thử xác nhận chức năng đáp ứng yêu cầu đã thống nhất. |
+| Go-live | Thời điểm hệ thống bắt đầu được dùng trong vận hành thật. |

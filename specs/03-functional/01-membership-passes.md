@@ -1,10 +1,10 @@
-# Functional Spec 01: Member và Pass
+# Đặc tả chức năng 01: Member và Pass
 
 ## 1. Mục tiêu và phạm vi
 
-Quản lý hồ sơ member và quyền sử dụng bể dưới ba loại pass: `SINGLE`, `SUBSCRIPTION`, `MULTI_ENTRY`. Module sở hữu lifecycle của entitlement; việc bán/thu tiền thuộc Commerce.
+Module quản lý hồ sơ member và quyền sử dụng bể theo ba loại pass: `SINGLE`, `SUBSCRIPTION`, `MULTI_ENTRY`. Module này chịu trách nhiệm cho lifecycle của entitlement; Commerce xử lý việc bán hàng và thu tiền.
 
-Ngoài phạm vi module: payment settlement, physical gate actuation, class attendance.
+Payment settlement, thao tác mở gate vật lý và class attendance nằm ngoài phạm vi của module.
 
 ## 2. Actors và quyền
 
@@ -33,21 +33,21 @@ stateDiagram-v2
 
 - `INACTIVE`: không còn hoạt động nhưng giữ lịch sử.
 - `BLOCKED`: chặn sử dụng tức thời theo lý do; eligibility luôn deny.
-- Deactivate/block không tự refund hoặc cancel pass.
+- Khi deactivate hoặc block member, hệ thống không tự refund hay cancel pass.
 
 ### Dữ liệu tối thiểu
 
-`id`, `member_code`, `full_name`, `normalized_phone`, `email`, `dob`, `status`, `home_branch_id`, audit/version. Phone là required theo baseline nguồn; nếu Product cho minor không phone, cần household/guardian model trước khi bỏ required.
+Dữ liệu tối thiểu gồm `id`, `member_code`, `full_name`, `normalized_phone`, `email`, `dob`, `status`, `home_branch_id`, audit và version. Theo baseline nguồn, phone là trường bắt buộc. Nếu Product cho phép minor không có phone, hệ thống cần có household/guardian model trước khi bỏ yêu cầu này.
 
 ## 4. Product và entitlement
 
 ### Pass Product
 
-- Identity/version: `product_id`, `version`, `name`, `pass_type`, `status`.
-- Commercial: `base_price`, sale window, branch scope.
-- Entitlement policy: duration, total entries, activation, frequency, time/branch rules, freeze policy reference.
-- Product phải `PUBLISHED/ACTIVE` và trong sale window để quote/order mới.
-- Thay đổi product tạo version mới hoặc effective-dated policy; không đổi pass đã issue.
+- Nhóm identity và version gồm `product_id`, `version`, `name`, `pass_type`, `status`.
+- Nhóm commercial gồm `base_price`, sale window và branch scope.
+- Entitlement policy gồm duration, total entries, activation, frequency, time/branch rule và freeze policy reference.
+- Chỉ product ở trạng thái `PUBLISHED/ACTIVE` và còn trong sale window mới được dùng để tạo quote hoặc order.
+- Khi product thay đổi, hệ thống tạo version hoặc effective-dated policy mới. Pass đã issue không bị thay đổi.
 
 ### Member Pass state
 
@@ -65,26 +65,26 @@ stateDiagram-v2
     SUSPENDED --> CANCELLED
 ```
 
-State hiển thị có thể materialize, nhưng eligibility luôn xét effective time/freeze/balance để không phụ thuộc scheduler.
+Hệ thống có thể materialize state để hiển thị. Tuy nhiên, eligibility vẫn phải kiểm tra effective time, freeze và balance thay vì phụ thuộc hoàn toàn vào scheduler.
 
 ## 5. Pass behavior
 
 ### Single
 
 - `total_entries = 1`.
-- Có validity window hoặc session scope.
-- Sau usage thành công, balance 0 và state `CONSUMED`.
+- Pass có validity window hoặc session scope.
+- Sau khi usage thành công, balance bằng 0 và state chuyển thành `CONSUMED`.
 
 ### Subscription
 
-- `UNLIMITED`: không có total entry nhưng vẫn có validity/frequency policy nếu cấu hình.
+- `UNLIMITED`: không có total entry, nhưng vẫn áp dụng validity hoặc frequency policy nếu được cấu hình.
 - `LIMITED_FREQUENCY`: giới hạn theo ngày lịch, tuần từ thứ Hai đến Chủ nhật hoặc tháng dương lịch tại timezone chi nhánh.
 
 ### Multi-entry
 
 - `total_entries > 0`.
-- Balance = tổng ledger delta đã commit; issue ghi credit ban đầu, check-in ghi debit, adjustment/refund ghi entry mới.
-- Không cho transaction làm balance < 0.
+- Balance bằng tổng các ledger delta đã commit. Issue ghi credit ban đầu, check-in ghi debit, còn adjustment hoặc refund tạo entry mới.
+- Transaction không được làm balance nhỏ hơn 0.
 
 ## 6. Activation và expiry
 
@@ -101,7 +101,7 @@ start = start-of-day(valid_from_date, policy_timezone)
 end_exclusive = start-of-day(valid_from_date + duration_days, policy_timezone)
 ```
 
-UI có thể hiển thị ngày cuối là `end_exclusive - 1 calendar day`. Duration theo tháng phải dùng calendar arithmetic và policy xử lý ngày 29–31; chưa được thêm nếu chưa có test rule rõ.
+UI có thể hiển thị ngày cuối bằng `end_exclusive - 1 calendar day`. Duration theo tháng phải dùng calendar arithmetic và có policy xử lý ngày 29 đến 31. Không thêm loại duration này khi chưa có test rule rõ ràng.
 
 ## 7. Deterministic pass selection
 
@@ -111,7 +111,7 @@ UI có thể hiển thị ngày cuối là `end_exclusive - 1 calendar day`. Dur
 4. `issued_at` sớm hơn.
 5. UUID lexical chỉ làm tie-break cuối để deterministic.
 
-Response access phải trả `selectedPassId`; selection strategy/version được audit để xử lý khiếu nại.
+Access response phải trả `selectedPassId`. Hệ thống audit selection strategy và version để hỗ trợ xử lý khiếu nại.
 
 ## 8. Flows
 
@@ -123,7 +123,7 @@ Response access phải trả `selectedPassId`; selection strategy/version đư�
 4. Nếu trùng, trả `409 MEMBER_PHONE_EXISTS` kèm reference actor được phép xem.
 5. Nếu không, tạo member `ACTIVE`, audit và trả `201`.
 
-Không tự merge dựa chỉ trên tên/email gần giống.
+Hệ thống không tự merge hồ sơ chỉ vì tên hoặc email gần giống nhau.
 
 ### Issue pass
 
@@ -153,7 +153,7 @@ Không tự merge dựa chỉ trên tên/email gần giống.
 - `POST /api/v1/member-passes/{passId}/cancellations`
 - Product endpoints trong API catalog.
 
-Mutation issue trực tiếp không public cho client; đi qua Commerce fulfillment hoặc complimentary workflow.
+Client không được gọi trực tiếp mutation để issue pass. Việc cấp pass phải đi qua Commerce fulfillment hoặc complimentary workflow.
 
 ## 10. Errors
 
@@ -179,3 +179,13 @@ Mutation issue trực tiếp không public cho client; đi qua Commerce fulfillm
 ## 13. Quyết định baseline
 
 Quota của pass toàn chuỗi được dùng chung giữa ba chi nhánh. Hiệu lực kết thúc vào cuối ngày theo timezone chi nhánh. Member có thể chọn pass ưu tiên; nếu không chọn, hệ thống dùng pass hợp lệ hết hạn sớm nhất. Transfer, gift và share pass nằm ngoài phạm vi. Chi tiết truy vết tại `OQ-002`, `OQ-003`, `OQ-004`, `OQ-016` và `OQ-022`.
+
+## Thuật ngữ cần biết
+
+| Thuật ngữ | Giải thích dễ hiểu |
+|---|---|
+| Lifecycle | Các trạng thái mà một đối tượng đi qua từ lúc tạo đến khi kết thúc. |
+| Entitlement | Quyền sử dụng dịch vụ được cấp cho member. |
+| Ledger | Sổ ghi từng lần cộng, trừ hoặc điều chỉnh để có thể kiểm tra lại lịch sử. |
+| Materialized balance | Số dư được lưu sẵn để đọc nhanh, nhưng vẫn phải đối chiếu được với ledger. |
+| Eligibility | Kết quả kiểm tra một pass có đủ điều kiện sử dụng tại thời điểm hiện tại hay không. |

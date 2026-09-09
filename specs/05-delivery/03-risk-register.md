@@ -56,3 +56,13 @@ Chi phí cho các phương án trên lấy từ contingency reserve 1.151,40 tri
 - Review riêng trước mỗi release, migration rehearsal, pilot và go-live.
 - Review bất thường sau incident, thay đổi nhà cung cấp hoặc change request lớn.
 - Score từ 15 trở lên phải có owner, due date, trigger, contingency và residual assessment.
+
+## Thuật ngữ cần biết
+
+| Thuật ngữ | Giải thích dễ hiểu |
+|---|---|
+| Risk Register | Danh sách rủi ro, mức độ, người phụ trách và phương án xử lý. |
+| Likelihood | Khả năng một rủi ro sẽ xảy ra. |
+| Impact | Mức ảnh hưởng nếu rủi ro xảy ra. |
+| Trigger | Dấu hiệu cho biết rủi ro sắp hoặc đã xảy ra. |
+| Contingency plan | Phương án dự phòng được thực hiện khi rủi ro xảy ra. |
