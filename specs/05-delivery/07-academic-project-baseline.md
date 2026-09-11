@@ -1,274 +1,200 @@
-# Baseline dự án SunSwim dùng cho báo cáo học phần
+# Baseline dự án SSMS-2026-BTL
 
-## 1. Cách sử dụng baseline
+## 1. Mục đích sử dụng
 
-Đây là bộ số liệu giả định cho một dự án triển khai thật tại chuỗi bể bơi SunSwim. Bốn thành viên Đạt, Công, Nam và Nguyên là nhóm lập báo cáo, không phải toàn bộ nhân sự phát triển hệ thống. Mỗi chương phải dùng chung các giả định dưới đây để tránh lệch số liệu.
+File này chuyển Tôn chỉ dự án thành một bộ dữ liệu chung để cả chín chương báo cáo dùng thống nhất. Thông tin về tên dự án, thời gian, tổng kinh phí, thành viên, mục tiêu và mốc bàn giao được lấy từ [Tôn chỉ dự án](00-project-charter.md). Các bảng phân rã chi phí, WBS và cách tổ chức công việc là baseline kế hoạch do nhóm xây dựng trong giới hạn đã được phê duyệt.
 
-| Thuộc tính | Baseline |
+## 2. Thông tin cố định
+
+| Nội dung | Baseline |
 |---|---|
-| Tên dự án | Xây dựng và triển khai hệ thống quản lý bể bơi SunSwim |
-| Loại dự án | Phát triển phần mềm theo yêu cầu, tích hợp thiết bị và triển khai production |
-| Phạm vi triển khai | 3 chi nhánh của cùng một doanh nghiệp |
-| Thời gian | 01/10/2026 đến 31/07/2027, gồm 10 tháng |
-| Sponsor | Ban Giám đốc SunSwim |
-| Product Owner | Trưởng khối Vận hành SunSwim |
-| Project Manager | Đạt, theo vai trò giả định trong báo cáo |
-| Nhóm lập báo cáo | Đạt, Công, Nam, Nguyên |
-| Người phê duyệt học thuật | Giảng viên phụ trách môn học |
-| Phiên bản baseline | PMB-1.0 |
+| Tên dự án | Hệ thống Quản lý Hoạt động Chuỗi Bể bơi SunSwim |
+| Mã dự án | `SSMS-2026-BTL` |
+| Thời gian | 15/08/2026 đến 25/11/2026, gồm 14 tuần |
+| Tổng kinh phí | 150.000.000 VNĐ |
+| Nguồn vốn | Ngân sách chuyển đổi số nội bộ chuỗi SunSwim |
+| Chủ đầu tư, đơn vị thụ hưởng | Công ty Cổ phần Thể thao và Giải trí SunSwim |
+| Đại diện Chủ đầu tư | Nguyễn Văn Bình, Tổng Giám đốc |
+| Đại diện khách hàng | Hoàng Thị Mai |
+| Đơn vị thi công | Nhóm sinh viên Lớp D23CNPM02, PTIT |
+| Project Manager | Trần Nhật Nam, B23DCCN592 |
+| Giảng viên hướng dẫn | ThS. Ngô Tiến Đức |
 
-Các chức danh phía SunSwim được dùng theo vai trò, không tự đặt tên cá nhân khi đề bài chưa cung cấp.
+## 3. Mục tiêu và tiêu chí thành công
 
-## 2. Mục tiêu và điều kiện thành công
+Hệ thống quản lý tập trung hoạt động nhiều chi nhánh SunSwim, gồm bán vé lượt và thẻ tháng, thẻ hội viên RFID/QR, check-in/out, tủ đồ, lịch dạy, điểm danh và dashboard quản trị.
 
-Đến ngày 31/07/2027, SunSwim có một hệ thống production dùng chung cho ba chi nhánh, thay thế việc quản lý rời rạc ở quầy, cổng ra vào, lớp học và báo cáo vận hành.
+Các tiêu chí bắt buộc:
 
-Các điều kiện thành công:
+- Quét check-in và gán tủ tại quầy dưới 5 giây cho mỗi khách.
+- Không còn trường hợp trùng lịch học bơi hoặc thất thoát vé do hệ thống.
+- Chịu được ít nhất 200 giao dịch đồng thời trong giờ cao điểm.
+- API phản hồi không quá 1,5 giây ở tải thiết kế.
+- Các milestone chính không trễ quá 5 ngày làm việc; SPI không thấp hơn 0,95.
+- Chi phí thực tế không vượt 150.000.000 VNĐ; CPI không thấp hơn 1,0.
+- Đáp ứng 100% yêu cầu bắt buộc trong SRS.
+- Không còn lỗi nghiêm trọng trước Go-live.
+- 100% người dùng tham gia thử nghiệm ký xác nhận UAT.
 
-- 100% payment đã settled truy vết được tới order và quyền sử dụng được cấp.
-- Không phát sinh pass âm lượt hoặc fulfillment trùng trong kiểm thử và giai đoạn pilot.
-- Gate decision đạt P95 không quá 800 ms ở mức tải thiết kế của ba chi nhánh.
-- Không vượt sức chứa do lỗi xử lý đồng thời của hệ thống.
-- Không còn lỗi Severity 1 hoặc Severity 2 tại thời điểm go-live.
-- Dữ liệu hội viên, pass đang hoạt động và số dư được đối soát trước khi chuyển đổi.
-- Nhân viên vận hành thuộc ba chi nhánh được đào tạo và hoàn thành bài kiểm tra sử dụng.
-- Hệ thống được pilot tại một chi nhánh trước khi mở rộng sang hai chi nhánh còn lại.
-
-## 3. Phạm vi dự án
+## 4. Phạm vi cấp cao
 
 ### Trong phạm vi
 
-1. Khảo sát, chuẩn hóa quy trình và yêu cầu tại ba chi nhánh.
-2. Member, guest, ba loại pass, lifecycle và usage ledger.
-3. POS Cash, online payment, order, receipt, refund và fulfillment.
-4. QR check-in, check-out, manual override và quản lý sức chứa.
-5. Bảo lưu pass, locker cố định và locker tạm thời.
-6. Lớp học, huấn luyện viên, enrollment, waitlist và attendance.
-7. Opening hours, time slot, holiday rule và dynamic pricing.
-8. Dashboard doanh thu, lượt vào, sức chứa và export có phân quyền.
-9. Admin Web, Member responsive Web/PWA và Device API.
-10. RBAC theo chi nhánh, audit log, notification, monitoring, backup và runbook.
-11. Tích hợp thiết bị cổng, QR reader, locker controller và nhà cung cấp thanh toán qua adapter.
-12. Migration dữ liệu, đào tạo người dùng, pilot và hỗ trợ sau go-live trong 30 ngày.
+1. Quản lý tập trung dữ liệu và nghiệp vụ nhiều chi nhánh.
+2. Bán vé lượt, thẻ tháng và quản lý vòng đời quyền sử dụng.
+3. Phát hành và kiểm tra thẻ hội viên RFID hoặc QR.
+4. Check-in/out qua cửa xoay, kiểm soát sức chứa và xử lý ngoại lệ tại quầy.
+5. Offline/Local Cache tại máy quầy, lưu lịch sử quét và đồng bộ khi có mạng trở lại.
+6. Cấp, thuê, trả và theo dõi trạng thái tủ đồ.
+7. Quản lý huấn luyện viên, lịch dạy, ca học, học viên và điểm danh.
+8. Dashboard phục vụ quản lý và báo cáo vận hành.
+9. Chuyển đổi dữ liệu hội viên cần thiết từ các file Excel hiện có.
+10. Kiểm thử, đào tạo, chạy thử tại một cơ sở và bàn giao tài liệu.
 
 ### Ngoài phạm vi giai đoạn này
 
-- Multi-tenant SaaS cho nhiều doanh nghiệp độc lập.
-- Payroll, hoa hồng huấn luyện viên, sổ cái và kế toán tổng hợp.
-- Nhận diện khuôn mặt, sinh trắc học và native mobile app.
-- Gate hoạt động offline bằng entitlement cache.
-- Quản lý tồn kho bán lẻ đầy đủ.
-- Đặt lane, đặt toàn bộ cơ sở và quản lý giải đấu.
-- CRM marketing automation và lead pipeline.
-- Lưu dữ liệu thẻ nhạy cảm hoặc tự thực hiện card acquiring.
+- Nhận diện khuôn mặt hoặc sinh trắc học.
+- Hệ thống kế toán tổng hợp, tiền lương và hoa hồng huấn luyện viên.
+- Ứng dụng di động native, CRM marketing đầy đủ và quản lý giải đấu.
+- Thay mới toàn bộ máy tính, máy quét và hạ tầng sẵn có tại quầy.
 
-## 4. Giải pháp và môi trường
+Yêu cầu mới ngoài SRS phải đi qua CCB. Nhóm ưu tiên chuyển các yêu cầu không bắt buộc sang giai đoạn 2 thay vì tự mở rộng phạm vi trong 14 tuần.
+
+## 5. Giải pháp kỹ thuật
 
 | Thành phần | Baseline |
 |---|---|
-| Kiến trúc ứng dụng | Modular monolith, API và worker tách process |
-| Frontend | Next.js và TypeScript |
-| Backend | NestJS và TypeScript |
-| Database | Managed PostgreSQL có backup và point-in-time recovery |
-| API | REST/JSON theo `/api/v1` |
-| Hạ tầng | Cloud production có load balancer, WAF và ít nhất 2 API instance |
-| Tích hợp cổng | Device API và adapter của nhà cung cấp thiết bị |
-| Thanh toán | Adapter kết nối một payment provider được chọn qua mua sắm |
-| Realtime | Server-Sent Events cho dashboard sức chứa |
-| Môi trường | Local, Dev, Staging/UAT và Production tách biệt |
-| Vận hành | Centralized logs, metrics, traces, alerting và runbook |
+| Kiểu hệ thống | Ứng dụng web phân tầng, tổ chức theo modular monolith |
+| Backend | Java Spring Boot |
+| Frontend | React hoặc Vue; chốt lựa chọn trong mốc thiết kế tuần 6 |
+| Cơ sở dữ liệu | PostgreSQL |
+| Giao tiếp | REST API; hợp đồng chi tiết quản lý trong OpenAPI khi cài đặt |
+| Thiết bị | Tận dụng máy tính quầy và máy quét mã vạch/RFID sẵn có |
+| Ngoại tuyến | Local Cache và hàng đợi lịch sử quét tại máy quầy, tự đồng bộ khi có mạng |
+| Bảo mật | Phân quyền theo vai trò, giới hạn dữ liệu theo chi nhánh, audit thao tác nhạy cảm |
 
-PostgreSQL là nguồn dữ liệu chuẩn cho payment, pass, access và capacity. Redis chỉ dùng để tăng hiệu năng, không quyết định tính đúng đắn của giao dịch.
+PostgreSQL là nguồn dữ liệu chính thức. Local Cache chỉ hỗ trợ vận hành tạm thời khi mất mạng và phải được đối soát sau khi đồng bộ.
 
-## 5. WBS cấp cao
+## 6. WBS cấp cao
 
-| WBS | Work package | Đầu ra chính |
+| WBS | Gói công việc | Đầu ra chính | Người phụ trách chính |
+|---|---|---|---|
+| 1.0 | Quản lý dự án | Kế hoạch, lịch, chi phí, báo cáo trạng thái, thay đổi | Trần Nhật Nam |
+| 2.0 | Khảo sát và yêu cầu | Quy trình, SRS, WBS chi tiết, tiêu chí chấp nhận | Vũ Thành Công |
+| 3.0 | Kiến trúc, dữ liệu và UI | Kiến trúc, ERD, DFD, sơ đồ đối tượng, prototype | Phạm Tuấn Đạt và Trần Nhật Nam |
+| 4.0 | Phát triển chức năng | Bán vé, hội viên, check-in, tủ đồ, xếp lịch, dashboard | Phạm Tuấn Đạt và Vũ Thành Công |
+| 5.0 | Tích hợp và ngoại tuyến | RFID/QR, cửa xoay, Local Cache, đồng bộ và đối soát | Phạm Tuấn Đạt |
+| 6.0 | Kiểm thử và UAT | SQAP, test case, kiểm thử tải, sửa lỗi, biên bản UAT | Vũ Thành Nguyên |
+| 7.0 | Dữ liệu, đào tạo và chạy thử | Chuyển đổi Excel, hướng dẫn, đào tạo, pilot một cơ sở | Vũ Thành Công và Vũ Thành Nguyên |
+| 8.0 | Bàn giao và đóng dự án | Mã nguồn, tài liệu, nghiệm thu, tổng kết | Trần Nhật Nam |
+
+## 7. Lịch và mốc bàn giao
+
+| Giai đoạn | Thời gian | Kết quả |
 |---|---|---|
-| 1.0 | Quản lý dự án | Charter, kế hoạch, báo cáo trạng thái, change log |
-| 2.0 | Khảo sát và yêu cầu | Process map, BRS, backlog, acceptance baseline |
-| 3.0 | Kiến trúc và UX | Kiến trúc, data model, API, prototype giao diện |
-| 4.0 | Nền tảng và bảo mật | Identity, RBAC, audit, CI/CD, observability |
-| 5.0 | Core Pool Operation | Member, Pass, POS Cash, Access, Capacity |
-| 6.0 | Operational Expansion | Freeze, locker, online payment, pricing, reports |
-| 7.0 | Training Services | Class, coach, enrollment, waitlist, attendance |
-| 8.0 | Tích hợp và thiết bị | Gate, QR reader, locker, payment, notification |
-| 9.0 | Dữ liệu và chuyển đổi | Làm sạch, mapping, migration, đối soát |
-| 10.0 | Kiểm thử và nghiệm thu | Integration, system, security, performance, UAT |
-| 11.0 | Triển khai và đào tạo | Pilot, rollout ba chi nhánh, training, hypercare |
-| 12.0 | Đóng dự án | Bàn giao, nghiệm thu, lessons learned, quyết toán |
+| Khởi động và khảo sát | 15/08 đến 05/09/2026 | Tôn chỉ, SRS và WBS chi tiết |
+| Thiết kế | 06/09 đến 26/09/2026 | Kiến trúc, ERD, DFD, sơ đồ đối tượng và UI Prototype |
+| Cài đặt và kiểm thử nội bộ | 27/09 đến 23/10/2026 | Các module cốt lõi đã tích hợp và có kết quả kiểm thử |
+| Hoàn thiện bản chạy thử | 24/10 đến 30/10/2026 | Hệ thống sẵn sàng cho UAT tại một cơ sở mẫu |
+| UAT, chuyển đổi và đào tạo | 31/10 đến 18/11/2026 | Biên bản UAT, dữ liệu đã đối soát, người dùng được hướng dẫn |
+| Sửa lỗi và bàn giao | 19/11 đến 25/11/2026 | Mã nguồn, kế hoạch chuyển đổi, hướng dẫn và hồ sơ nghiệm thu |
 
-Mỗi chương dùng nguyên mã WBS cấp cao này. Owner có thể phân rã thành `5.1`, `5.2` và các cấp thấp hơn nhưng không đổi tên work package cấp 1.
+| Milestone | Hạn | Điều kiện xác nhận |
+|---|---|---|
+| M1: SRS và WBS | 05/09/2026 | Phạm vi bắt buộc rõ, yêu cầu có tiêu chí chấp nhận |
+| M2: Thiết kế hệ thống | 26/09/2026 | Đủ ERD, DFD, sơ đồ đối tượng, prototype và quyết định công nghệ |
+| M3: Sẵn sàng UAT tại cơ sở mẫu | 30/10/2026 | Bán vé, check-in, tủ đồ và xếp lịch chạy được cùng nhau |
+| M4: Bàn giao chính thức | 25/11/2026 | Đủ mã nguồn, kế hoạch chuyển đổi, hướng dẫn và biên bản UAT |
 
-## 6. Lịch cấp cao
+## 8. Nhóm dự án
 
-| Giai đoạn | Thời gian | Nội dung chính | Milestone |
-|---|---|---|---|
-| Khởi động | 01/10 đến 15/10/2026 | Charter, stakeholder, governance | M1: Charter approved |
-| Khảo sát và baseline yêu cầu | 16/10 đến 30/11/2026 | Quy trình, phạm vi, backlog, acceptance | M2: Scope baseline |
-| Kiến trúc và thiết kế | 01/12/2026 đến 15/01/2027 | Kiến trúc, dữ liệu, API, UX, kế hoạch tích hợp | M3: Design baseline |
-| Release 0 | 16/01 đến 28/02/2027 | Nền tảng, RBAC, audit, CI/CD, master data | M4: Foundation ready |
-| Release 1 | 01/03 đến 15/04/2027 | Member, Pass, POS Cash, QR Access, Capacity | M5: Core feature complete |
-| Release 2 | 16/04 đến 31/05/2027 | Freeze, locker, online payment, pricing, report | M6: Expansion feature complete |
-| Release 3 | 01/05 đến 15/06/2027 | Class, coach, enrollment, attendance | M7: Training feature complete |
-| Kiểm thử và UAT | 01/06 đến 30/06/2027 | System, security, performance, migration rehearsal, UAT | M8: Go-live approved |
-| Pilot và rollout | 01/07 đến 20/07/2027 | Pilot một chi nhánh, sau đó rollout hai chi nhánh | M9: Production rollout complete |
-| Hypercare và đóng dự án | 21/07 đến 31/07/2027 | Theo dõi, sửa lỗi, bàn giao và quyết toán | M10: Project closed |
+| Thành viên | Vai trò dự án | Trách nhiệm chính |
+|---|---|---|
+| Trần Nhật Nam, B23DCCN592 | Project Manager và System Architect | Lập kế hoạch, điều phối, kiểm soát tiến độ, chi phí, rủi ro, thay đổi và chủ trì nghiệm thu |
+| Vũ Thành Công, B23DCCN103 | Business Analyst Lead và Back-end Developer | Khảo sát nghiệp vụ, soạn SRS, phân tích dữ liệu và phát triển backend nghiệp vụ |
+| Phạm Tuấn Đạt, B23DCCN145 | Technical Lead và Full-stack Developer | Thiết kế kỹ thuật, chọn nền tảng, phân rã module, quản lý Git, bảo mật và phát triển toàn hệ thống |
+| Vũ Thành Nguyên, B23DCCN617 | QA/QC Lead và Tester | Lập SQAP, viết test case, kiểm thử tải, theo dõi lỗi và điều phối UAT |
 
-Một số giai đoạn chồng lấn có chủ đích. Chương 3 phải phân rã lịch chi tiết, xác định critical path và nêu rõ điều kiện để Release 3, kiểm thử và migration được chạy song song.
+Nguyễn Văn Bình phê duyệt ngân sách, thay đổi phạm vi và nghiệm thu bàn giao. Hoàng Thị Mai làm rõ nghiệp vụ, góp ý giao diện quầy và trực tiếp tham gia UAT.
 
-## 7. Nguồn lực dự án
+## 9. Baseline chi phí
 
-Đội dự án thực tế gồm nhân sự nội bộ SunSwim, đội phát triển và nhà cung cấp chuyên môn. Nhóm delivery cốt lõi cao điểm khoảng 18 người, không tính Sponsor và 6 Key User tham gia bán thời gian.
+Đơn vị là triệu VNĐ. Tổng ngân sách 150 triệu là số liệu được duyệt trong Tôn chỉ. Phân bổ dưới đây là giả định kế hoạch để Chương 4 có đủ cơ sở theo dõi một dự án thật; thay đổi giữa các nhóm chi phí phải được Project Manager kiểm soát.
 
-| Vai trò | Số lượng kế hoạch | Trách nhiệm chính |
-|---|---:|---|
-| Sponsor | 1 | Cấp ngân sách, xử lý vấn đề vượt thẩm quyền PM |
-| Product Owner | 1 | Ưu tiên yêu cầu, chấp nhận sản phẩm |
-| Project Manager | 1 | Tích hợp kế hoạch, tiến độ, chi phí, thay đổi |
-| Business Analyst | 2 | Khảo sát, yêu cầu, quy trình và UAT |
-| Solution Architect | 1 | Kiến trúc, NFR, quyết định kỹ thuật |
-| UI/UX Designer | 1 | Research, prototype và design system |
-| Backend Developer | 4 | Domain, API, worker và integration |
-| Frontend Developer | 3 | Admin Web, Member PWA và dashboard |
-| QA Engineer | 3 | Test plan, automation, system test và UAT support |
-| DevOps/SRE | 1 | CI/CD, cloud, monitoring, backup và release |
-| Chuyên gia ngắn hạn | Theo nhu cầu | Security, database, device và payment integration |
-| Key User | 6, mỗi chi nhánh 2 người | Review quy trình, UAT, đào tạo lại tại chi nhánh |
+### 9.1 Chi phí trực tiếp
 
-Bốn thành viên lập báo cáo vẫn chia chương theo [Bảng phân công](06-phan-cong-bao-cao-ptit.md). Chương 6 mô tả cơ cấu đội dự án thật ở trên, đồng thời ghi riêng trách nhiệm viết báo cáo của nhóm bốn người.
-
-## 8. Baseline chi phí
-
-Đơn vị trong các bảng là triệu VND, chưa bao gồm VAT. Đây là ROM estimate dùng cho lập kế hoạch, có độ chính xác mục tiêu từ -15% đến +25% trước khi có báo giá chính thức.
-
-### 8.1 Chi phí nhân lực
-
-| Vai trò hoặc nhóm việc | Cơ sở ước lượng | Thành tiền |
+| Nhóm chi phí | Cơ sở lập kế hoạch | Số tiền |
 |---|---|---:|
-| Product Owner phía doanh nghiệp | 0,5 FTE x 10 tháng x 50 | 250 |
-| Project Manager | 1 người x 10 tháng x 60 | 600 |
-| Business Analyst | 2 người x 8 tháng x 42 | 672 |
-| Solution Architect | 1 người x 6 tháng x 70 | 420 |
-| UI/UX Designer | 1 người x 5 tháng x 38 | 190 |
-| Backend Developer | 4 người x 8 tháng x 45 | 1.440 |
-| Frontend Developer | 3 người x 7 tháng x 42 | 882 |
-| QA Engineer | 3 người x 7 tháng x 35 | 735 |
-| DevOps/SRE | 1 người x 8 tháng x 55 | 440 |
-| Chuyên gia security, database, device | 6 person-month x 65 | 390 |
-| Đào tạo, migration và hỗ trợ vận hành | 8 person-month x 32 | 256 |
-| Tổng chi phí nhân lực |  | **6.275** |
+| Quản lý dự án và phân tích nghiệp vụ | Lập kế hoạch, khảo sát, SRS, WBS và báo cáo | 15 |
+| Kiến trúc, dữ liệu và thiết kế giao diện | Kiến trúc, ERD, DFD, prototype | 15 |
+| Phát triển phần mềm | Backend, frontend, cơ sở dữ liệu và dashboard | 50 |
+| Kiểm thử và UAT | Test case, kiểm thử tích hợp, tải và hỗ trợ nghiệm thu | 15 |
+| Chuyển đổi dữ liệu, đào tạo và tài liệu | Làm sạch Excel, chạy thử, hướng dẫn sử dụng | 10 |
+| Hạ tầng và công cụ trong thời gian dự án | Môi trường phát triển, kiểm thử, lưu trữ và giám sát | 8 |
+| Tích hợp RFID/QR và cửa xoay | Adapter, cấu hình và thử nghiệm thiết bị sẵn có | 15 |
+| Bổ sung mạng, phụ kiện và thiết bị dự phòng nhỏ | Cáp, đầu đọc phụ, thiết bị hỗ trợ pilot | 7 |
+| **Tổng chi phí trực tiếp** |  | **135** |
 
-Đơn giá là loaded rate, gồm lương, bảo hiểm, thiết bị làm việc, quản lý doanh nghiệp và chi phí gián tiếp của đơn vị cung cấp nhân lực.
+### 9.2 Dự phòng và tổng ngân sách
 
-### 8.2 Hạ tầng, thiết bị và dịch vụ
-
-| Hạng mục | Cơ sở ước lượng | Thành tiền |
-|---|---|---:|
-| Cloud, database, backup, WAF và monitoring | Dev, UAT, Production trong 10 tháng | 450 |
-| Gate, QR reader, bộ điều khiển và lắp đặt | 3 chi nhánh, gồm thiết bị dự phòng | 1.200 |
-| Locker controller và adapter tích hợp | 3 chi nhánh | 450 |
-| POS terminal, máy in và phụ kiện mạng | 3 chi nhánh | 300 |
-| Payment, SMS, email và phí thiết lập tích hợp | Gói triển khai ban đầu | 240 |
-| Công cụ phát triển, kiểm thử và quản lý | License theo thời hạn dự án | 150 |
-| Pentest và kiểm thử hiệu năng độc lập | 2 đợt đánh giá | 180 |
-| Migration, đào tạo, đi lại và tài liệu | 3 chi nhánh | 250 |
-| Pháp lý, hành chính và chi phí mua sắm | Gói dự toán | 100 |
-| Tổng hạ tầng, thiết bị và dịch vụ |  | **3.320** |
-
-### 8.3 Tổng ngân sách
-
-| Thành phần | Giá trị |
+| Thành phần | Số tiền |
 |---|---:|
-| Chi phí trực tiếp | 9.595,00 triệu VND |
-| Contingency reserve, 12% chi phí trực tiếp | 1.151,40 triệu VND |
-| Cost baseline | **10.746,40 triệu VND** |
-| Management reserve, 7% chi phí trực tiếp | 671,65 triệu VND |
-| Tổng ngân sách cần được cấp | **11.418,05 triệu VND** |
+| Chi phí trực tiếp | 135 |
+| Dự phòng cho rủi ro đã nhận diện | 10 |
+| **Cost Baseline** | **145** |
+| Dự phòng quản lý | 5 |
+| **Tổng kinh phí được duyệt** | **150** |
 
-Cost baseline tương đương khoảng 10,75 tỷ VND. Tổng ngân sách được cấp tương đương khoảng 11,42 tỷ VND. Contingency reserve dùng cho known risks đã có trong risk register. Management reserve nằm ngoài cost baseline và chỉ Sponsor được quyền giải ngân.
+Dự phòng rủi ro dùng cho các tình huống đã có trong Risk Register. Dự phòng quản lý chỉ dùng khi có thay đổi chưa lường trước và phải được đại diện Chủ đầu tư chấp thuận. CPI được tính trên số liệu thực tế và phải không thấp hơn 1,0.
 
-## 9. Baseline mua sắm
+## 10. Mua sắm
 
-| Nhóm mua sắm | Hình thức dự kiến | Người đề xuất | Người duyệt | Điều kiện nghiệm thu chính |
-|---|---|---|---|---|
-| Cloud và managed database | Thuê dịch vụ theo tháng | DevOps Lead | PM và Sponsor | HA, backup restore, monitoring và security test đạt |
-| Gate, QR reader và controller | Hợp đồng trọn gói có lắp đặt | Technical Lead | PM và Sponsor | Device API, fail-closed, latency và pilot đạt |
-| Locker controller | Trọn gói theo chi nhánh | Operations Lead | PM | Không cấp trùng, mở khóa và audit đạt |
-| Payment provider | Hợp đồng dịch vụ theo giao dịch | Finance Lead | Sponsor | Sandbox E2E, webhook, refund và reconciliation đạt |
-| Pentest độc lập | Fixed-price theo phạm vi | QA Lead | PM | Báo cáo hoàn chỉnh, không còn phát hiện Critical hoặc High chưa xử lý |
-| Đào tạo và migration support | Time and materials có trần | BA Lead | PM | Đủ dữ liệu đối soát và người dùng hoàn thành đào tạo |
+Dự án ưu tiên tận dụng thiết bị sẵn có. Chỉ mua hoặc thuê những phần còn thiếu để hoàn thành pilot và bàn giao.
 
-Nhà cung cấp được chấm theo đáp ứng kỹ thuật 35%, tổng chi phí sở hữu 25%, năng lực hỗ trợ 20%, thời gian cung cấp 10% và kinh nghiệm triển khai 10%. Hợp đồng từ 500 triệu VND trở lên cần Sponsor phê duyệt. Không ghi tên nhà cung cấp cụ thể trước khi hoàn thành vendor evaluation.
+| Hạng mục | Hình thức dự kiến | Tiêu chí nghiệm thu |
+|---|---|---|
+| Hạ tầng chạy thử và lưu trữ | Thuê theo thời gian sử dụng | Ổn định, sao lưu được, đáp ứng tải kiểm thử |
+| Thiết bị RFID/QR hoặc phụ kiện còn thiếu | Mua số lượng nhỏ | Đọc đúng thẻ, tương thích phần mềm và qua kiểm thử tại quầy |
+| Hỗ trợ tích hợp cửa xoay | Theo phạm vi công việc cụ thể | Check-in/out, phản hồi thiết bị và ghi log đúng |
+| Công cụ đào tạo, tài liệu | Tự thực hiện hoặc mua dịch vụ cần thiết | Người dùng pilot có đủ tài liệu và hoàn thành hướng dẫn |
 
-## 10. Giao tiếp và quản lý tài liệu
+Mọi cam kết mua sắm phải nằm trong tổng kinh phí 150 triệu. Không đưa tên nhà cung cấp vào baseline trước khi nhóm hoàn thành đánh giá và có phê duyệt.
 
-- Daily stand-up của đội triển khai kéo dài tối đa 15 phút.
-- Họp trạng thái dự án vào chiều thứ Sáu hằng tuần, có tiến độ, chi phí, rủi ro và quyết định cần duyệt.
-- Steering Committee họp hai tuần một lần và họp bất thường khi rủi ro mức Cao vượt thẩm quyền PM.
-- Báo cáo tháng gửi Sponsor trong ba ngày làm việc đầu tiên của tháng kế tiếp.
-- Blocker quá hai ngày làm việc phải được báo cho PM.
-- Requirement, risk, issue, change request và decision phải có ID, owner, ngày đến hạn và trạng thái.
-- Đạt quản lý mục lục, phiên bản và bản hợp nhất của báo cáo học phần.
-- Mỗi thành viên chỉ sửa trực tiếp các chương mình phụ trách; dữ liệu dùng chung lấy từ baseline này.
+## 11. Chất lượng và nghiệm thu
 
-## 11. Baseline chất lượng
+- Vũ Thành Nguyên quản lý SQAP, test case, báo cáo lỗi, kiểm thử tải và bằng chứng UAT.
+- Kiểm thử hiệu năng phải chứng minh 200 giao dịch đồng thời, API không quá 1,5 giây và luồng check-in cùng gán tủ dưới 5 giây.
+- Kiểm thử lịch phải chứng minh hệ thống không chấp nhận lịch học trùng.
+- Kiểm thử vé phải bao phủ quét lặp, dùng đồng thời, hoàn tác và đồng bộ ngoại tuyến.
+- Mọi yêu cầu bắt buộc trong SRS phải có ít nhất một test case và kết quả.
+- Trước Go-live không được còn lỗi nghiêm trọng.
+- Tất cả người dùng tham gia pilot phải ký UAT.
 
-| Chỉ tiêu | Ngưỡng chấp nhận |
-|---|---|
-| Acceptance test mức Critical | Pass 100% |
-| Lỗi Severity 1 và Severity 2 tại go-live | 0 lỗi còn mở |
-| Lỗi Severity 3 tại go-live | Không quá 10 lỗi, có workaround và lịch sửa |
-| Gate decision | P95 không quá 800 ms ở tải thiết kế |
-| Availability trong pilot | Từ 99,5% trong khung giờ vận hành |
-| Migration | 100% bản ghi tài chính đối soát, sai lệch dữ liệu nghiệp vụ dưới 0,1% |
-| Bảo mật | Không còn phát hiện Critical hoặc High từ pentest |
-| Đào tạo | 100% key user hoàn thành, điểm kiểm tra từ 80% |
-| Review tài liệu | Mỗi deliverable có người soạn, người review và người phê duyệt |
+## 12. Giao tiếp và kiểm soát thay đổi
 
-Công quản lý checklist Chương 9 và đối chiếu các chỉ tiêu này với test strategy, NFR, UAT và điều kiện go-live.
+- Nhóm họp ngắn hằng ngày trong giai đoạn cài đặt và kiểm thử.
+- Project Manager cập nhật tiến độ, chi phí, rủi ro và quyết định mỗi tuần.
+- Blocker ảnh hưởng milestone phải được báo ngay cho Trần Nhật Nam.
+- Yêu cầu ngoài SRS được ghi thành Change Request và đưa ra CCB.
+- CCB đánh giá tác động đến phạm vi, thời gian, chi phí và chất lượng trước khi quyết định.
+- Thay đổi làm vượt 150 triệu hoặc thay đổi phạm vi cấp cao cần Nguyễn Văn Bình phê duyệt.
+- Tài liệu bị ảnh hưởng phải được cập nhật cùng traceability, lịch, chi phí và test case.
 
-## 12. Baseline rủi ro
+## 13. Bốn rủi ro ưu tiên
 
-- Xác suất và tác động được chấm từ 1 đến 5.
-- Điểm rủi ro bằng xác suất nhân tác động.
-- Từ 15 đến 25 là Cao, từ 8 đến 14 là Trung bình, từ 1 đến 7 là Thấp.
-- Rủi ro mức Cao phải có owner, trigger, phương án ứng phó và ngân sách dự phòng.
-- Nguyên duy trì Risk Register cho Chương 8 và tổ chức review hằng tuần.
-- Contingency reserve xử lý known risks; management reserve chỉ dùng cho thay đổi ngoài baseline.
-
-## 13. Quyền duyệt và nghiệm thu
-
-| Nội dung | Người chuẩn bị | Người review | Người chấp thuận |
-|---|---|---|---|
-| Charter và Project Management Plan | Project Manager | Product Owner | Sponsor |
-| Phạm vi và business rule | Business Analyst | Project Manager | Product Owner |
-| Kiến trúc, bảo mật và NFR | Solution Architect | Tech Lead, Security Lead | Architecture Board |
-| Lịch và cost baseline | Project Manager | Finance Lead | Sponsor |
-| Release và go-live | Release Manager | QA Lead, Operations Lead | Product Owner và Sponsor |
-| Nghiệm thu sản phẩm | Project Manager | Product Owner | Sponsor |
-| Bản báo cáo học phần | Đạt hợp nhất | Cả nhóm kiểm tra chéo | Giảng viên phụ trách |
-
-## 14. Quyết định nghiệp vụ dùng chung
-
-Các câu hỏi từng ghi Open hoặc Pending được chốt thành baseline học thuật tại [Giả định và quyết định baseline](../00-governance/03-assumptions-decisions-open-questions.md). Những quyết định này đủ để nhóm lập lịch, dự toán và viết báo cáo. Trước khi ký hợp đồng hoặc go-live thật, Product Owner vẫn phải xác nhận chúng trong workshop chính thức.
-
-## 15. Kiểm soát thay đổi
-
-1. Người đề xuất tạo change request và nêu phần baseline bị ảnh hưởng.
-2. PM điều phối đánh giá tác động đến phạm vi, lịch, chi phí, nguồn lực, rủi ro và chất lượng.
-3. Product Owner quyết định ưu tiên nghiệp vụ; Sponsor duyệt thay đổi làm tăng ngân sách hoặc lùi milestone cam kết.
-4. Sau khi được duyệt, owner cập nhật tài liệu, backlog, lịch, ngân sách và risk register liên quan.
-5. PM cập nhật version history và thông báo theo Communication Plan.
-
-Sau M5, dự án ưu tiên đổi phạm vi theo nguyên tắc bỏ hoặc lùi hạng mục ít quan trọng trước khi kéo dài ngày go-live. Không sử dụng management reserve để che giấu việc vượt cost baseline.
+1. Mất Internet tại chi nhánh: dùng Local Cache, lưu lịch sử quét và tự đồng bộ khi có mạng.
+2. Phạm vi tăng, chẳng hạn nhận diện khuôn mặt: CCB đánh giá và ưu tiên chuyển sang giai đoạn 2.
+3. Nhân viên khó thích ứng: giao diện trực quan, sơ đồ tủ xanh/đỏ, lịch kéo thả, đào tạo và video trước Go-live 2 tuần.
+4. Dữ liệu Excel sai hoặc trùng: kiểm tra số điện thoại, mã thẻ, chạy thử chuyển đổi và đối soát song song.
 
 ## Thuật ngữ cần biết
 
 | Thuật ngữ | Giải thích dễ hiểu |
 |---|---|
-| Baseline | Phiên bản kế hoạch đã chốt để theo dõi và kiểm soát thay đổi. |
-| ROM estimate | Ước lượng ban đầu có khoảng sai số tương đối rộng khi chưa có báo giá chi tiết. |
-| FTE | Khối lượng làm việc tương đương một người làm toàn thời gian. |
-| Person-month | Khối lượng công việc tương đương một người làm trong một tháng. |
-| Contingency reserve | Khoản dự phòng cho các rủi ro đã nhận diện. |
-| Management reserve | Khoản dự phòng nằm ngoài cost baseline, chỉ dùng cho thay đổi chưa lường trước và cần cấp có thẩm quyền duyệt. |
+| Baseline | Phiên bản kế hoạch đã chốt để cả nhóm dùng chung và đo thay đổi. |
+| Cost Baseline | Chi phí kế hoạch gồm chi phí trực tiếp và dự phòng cho các rủi ro đã biết. |
+| WBS | Cách chia dự án thành các gói công việc có thể giao và theo dõi. |
+| CCB | Nhóm xem xét yêu cầu thay đổi trước khi cho phép đưa vào dự án. |
+| UAT | Đợt người dùng đại diện trực tiếp thử và xác nhận hệ thống đáp ứng nghiệp vụ. |
+| SPI | Chỉ số cho biết tiến độ thực tế tốt hay kém hơn kế hoạch. |
+| CPI | Chỉ số cho biết giá trị công việc thu được có tương xứng với chi phí đã dùng hay không. |

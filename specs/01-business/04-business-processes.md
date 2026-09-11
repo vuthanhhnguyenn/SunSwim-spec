@@ -58,6 +58,14 @@ flowchart TD
 
 Checkout phải đóng đúng session đang mở, release temporary locker và cập nhật projection. Nightly reconciliation không xóa hoặc sửa event cũ. Thay vào đó, tác vụ tạo `access.reconciled` kèm actor, reason và policy.
 
+### Khi chi nhánh mất kết nối Internet
+
+1. Ứng dụng tại quầy chuyển sang chế độ ngoại tuyến và hiển thị rõ thời điểm đồng bộ gần nhất.
+2. RFID hoặc QR được kiểm tra bằng dữ liệu tối thiểu trong Local Cache, gồm trạng thái thẻ, quyền còn hiệu lực và các giới hạn cần thiết đã được đồng bộ.
+3. Mỗi lần quét được lưu vào hàng đợi cục bộ với mã yêu cầu duy nhất, thời gian thiết bị và kết quả xử lý.
+4. Nếu dữ liệu đã cũ, thiếu hoặc không đủ để đưa ra quyết định an toàn, hệ thống từ chối tự động và hướng dẫn lễ tân xử lý thủ công có ghi nhận.
+5. Khi có mạng trở lại, ứng dụng gửi lại các bản ghi theo thứ tự. Máy chủ dùng mã yêu cầu để chống ghi trùng, đối soát chênh lệch và tạo cảnh báo nếu phát hiện xung đột.
+
 ## 4. Class enrollment
 
 1. Validate member/dependent, enrollment window, age/waiver nếu áp dụng.
@@ -88,3 +96,4 @@ Hệ thống phải giữ lại lịch sử order, payment và pass.
 | Compensation | Giao dịch bù để xử lý tác động đã xảy ra khi không thể rollback trực tiếp. |
 | Saga | Chuỗi nhiều bước nghiệp vụ, trong đó mỗi bước có cách xử lý khi bước sau thất bại. |
 | Cutoff | Mốc thời gian sau đó một thao tác không còn được xử lý theo quy tắc thông thường. |
+| Local Cache | Phần dữ liệu cần thiết được lưu tạm trên máy quầy để làm việc khi mất mạng. |

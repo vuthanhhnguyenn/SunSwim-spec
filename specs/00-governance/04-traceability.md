@@ -1,20 +1,20 @@
 # Ma trận truy vết yêu cầu
 
-Ma trận dưới đây nối từng capability với business rule, functional spec, tài liệu kiến trúc và release. Acceptance criteria chi tiết nằm trong từng functional spec.
+Ma trận dưới đây nối từng capability với business rule, functional spec, tài liệu kiến trúc và milestone. Acceptance criteria chi tiết nằm trong từng functional spec.
 
-| Capability | Objective/BR gốc | Functional spec | Architecture/contract | Release |
+| Capability | Objective/BR gốc | Functional spec | Architecture/contract | Mốc bàn giao |
 |---|---|---|---|---|
-| Member & Pass | `BR-MEM-001..008` | `03-functional/01-membership-passes.md` | Domain/data, API, error | R1 |
-| Access & Capacity | `BR-GATE-001..008` | `03-functional/02-access-capacity.md` | Consistency/events, API | R1 |
-| Freeze | `BR-FRZ-001..005` | `03-functional/03-freeze-lifecycle.md` | Domain/data, events | R2 |
-| Classes | Module 4 rules | `03-functional/04-classes-coaches.md` | Domain/data, API/events | R3 |
-| Locker | Module 5 rules | `03-functional/05-lockers.md` | Integration/events | R2 |
-| Commerce | Module 6, `BR-CROSS-001/005/006` | `03-functional/06-commerce-payments.md` | Consistency/events, API | R1/R2 |
-| Schedule & Pricing | Module 7 | `03-functional/07-scheduling-pricing.md` | Domain/data, API | R2 |
-| Reporting | Module 8 | `03-functional/08-reporting.md` | Read models, export API | R1/R2 |
-| Authorization | Module permissions, NFR 14.4/14.5 | All functional specs | Security, API | R1 |
-| Audit | Common rule 3.2 | All mutation flows | Data/security/event | R1 |
-| Notifications | Section 12 | Module-specific triggers | Event catalog | R1+ |
+| Member & Pass | `BR-MEM-001..008` | `03-functional/01-membership-passes.md` | Domain/data, API, error | M3 pilot |
+| Access & Capacity | `BR-GATE-001..010` | `03-functional/02-access-capacity.md` | Consistency/events, API | M3 pilot, gồm RFID/QR và Local Cache |
+| Freeze | `BR-FRZ-001..005` | `03-functional/03-freeze-lifecycle.md` | Domain/data, events | M4 bàn giao |
+| Classes | Module 4 rules | `03-functional/04-classes-coaches.md` | Domain/data, API/events | M3 pilot |
+| Locker | Module 5 rules | `03-functional/05-lockers.md` | Integration/events | M3 pilot |
+| Commerce | Module 6, `BR-CROSS-001/005/006` | `03-functional/06-commerce-payments.md` | Consistency/events, API | M3 pilot |
+| Schedule & Pricing | Module 7 | `03-functional/07-scheduling-pricing.md` | Domain/data, API | M3 pilot |
+| Reporting | Module 8 | `03-functional/08-reporting.md` | Read models, export API | M4 bàn giao |
+| Authorization | Module permissions, NFR 14.4/14.5 | All functional specs | Security, API | M3 pilot |
+| Audit | Common rule 3.2 | All mutation flows | Data/security/event | M3 pilot |
+| Notifications | Section 12 | Module-specific triggers | Event catalog | M4 bàn giao |
 
 ## Coverage gate
 

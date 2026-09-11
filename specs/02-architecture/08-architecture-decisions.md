@@ -37,13 +37,13 @@ Các ADR dưới đây đã được chốt để làm báo cáo và thiết k�
 
 - Trạng thái: Baselined.
 - Quyết định: Server resolve credential; credential có thể rotate và revoke.
-- Hệ quả: MVP cần kết nối online, đổi lại thông tin khó bị lộ và credential có lifecycle rõ.
+- Hệ quả: Thông tin khó bị lộ và credential có vòng đời rõ. Khi ngoại tuyến, Local Cache chỉ lưu dữ liệu tối thiểu cần cho quyết định tại quầy.
 
-## ADR-007: Gate offline fail closed
+## ADR-007: Check-in ngoại tuyến có kiểm soát
 
 - Trạng thái: `SOURCE_CONFIRMED` và được dùng trong baseline.
-- Quyết định: Khi mất server hoặc network, gate không tự trả ALLOW; lễ tân xử lý bằng manual override.
-- Hệ quả: Cách này an toàn hơn nhưng làm giảm availability tại branch, vì vậy cần runbook và UX fallback.
+- Quyết định: Khi mất mạng, máy quầy dùng Offline/Local Cache, lưu tạm lịch sử quét và tự đồng bộ ngầm khi kết nối trở lại. Chỉ những yêu cầu có dữ liệu cục bộ còn hiệu lực và đủ điều kiện an toàn mới được xử lý tự động.
+- Hệ quả: Luồng check-in ít bị gián đoạn hơn, nhưng nhóm phải bảo vệ dữ liệu cục bộ, quản lý độ mới, chống ghi trùng và có hàng đợi đối soát xung đột.
 
 ## ADR-008: Projection cho report, không second database ở MVP
 

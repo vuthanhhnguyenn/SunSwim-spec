@@ -72,6 +72,8 @@ Server lưu key, actor hoặc client namespace, operation, normalized request ha
 - Provider webhook dedupe bằng provider event/transaction ID, không phụ thuộc header client.
 - Retention TTL theo loại operation và legal/operations decision; không xóa sớm hơn retry window.
 
+Yêu cầu đồng bộ từ Local Cache cũng phải có mã duy nhất cho từng lần quét. Khi máy quầy gửi lại cùng một bản ghi sau khi có mạng, server trả cùng kết quả nghiệp vụ hoặc kết quả đối soát, không tạo thêm lượt sử dụng, access session hay thay đổi sức chứa lần hai.
+
 ## 7. Optimistic concurrency
 
 Mutable aggregate trả `ETag` hoặc `version`. Update và decision nhạy cảm phải gửi `If-Match` hoặc `expectedVersion`. Nếu version không khớp, server trả `409 VERSION_CONFLICT` cùng current reference mà người dùng được phép xem.

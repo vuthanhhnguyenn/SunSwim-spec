@@ -11,6 +11,7 @@
 | Report projection | Eventual, rebuildable | Outbox event + checkpoint/inbox |
 | Realtime UI | Eventual snapshot + stream | SSE và refetch snapshot |
 | Smart locker | Eventual command/ack | Command log + timeout/reconciliation |
+| Offline check-in sync | Eventual, chống ghi trùng | Local queue + request ID + server reconciliation |
 
 ## 2. Atomic check-in algorithm
 
@@ -41,6 +42,13 @@ Mỗi quyết định DENY được ghi thành access event theo policy nhưng k
 - Đóng session, ghi checkout event, giảm occupancy không dưới 0.
 - Tạo outbox `access.session.closed.v1`.
 - Locker release là cùng transaction nếu locker chỉ là logical state trong DB; physical reset command gửi sau commit.
+
+## 3.1 Đồng bộ bản ghi ngoại tuyến
+
+- Mỗi máy quầy chỉ lưu tập dữ liệu tối thiểu, có phiên bản và thời điểm hết hiệu lực.
+- Mỗi lần quét ngoại tuyến có `requestId` duy nhất và trạng thái chưa đồng bộ, đã đồng bộ hoặc cần đối soát.
+- Khi kết nối trở lại, ứng dụng gửi bản ghi theo thứ tự phát sinh. Máy chủ xử lý idempotent, không tạo thêm lượt hoặc phiên truy cập nếu nhận lại cùng `requestId`.
+- Xung đột về số lượt, trạng thái hội viên hoặc sức chứa không bị che giấu. Hệ thống giữ bản ghi gốc, tạo kết quả đối soát và đưa trường hợp cần thiết vào hàng đợi xử lý của nhân viên.
 
 ## 4. Payment webhook state machine
 

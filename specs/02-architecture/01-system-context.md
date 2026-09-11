@@ -6,7 +6,7 @@
 flowchart LR
     Member["Member/Guest"] -->|"HTTPS"| SunSwim["SunSwim"]
     Staff["Manager/Reception/Coach/Finance"] -->|"HTTPS"| SunSwim
-    Gate["QR Gate Reader"] -->|"Device API mTLS or signed request"| SunSwim
+    Gate["RFID/QR Reader + Reception App"] -->|"Online Device API hoặc Offline Queue"| SunSwim
     SunSwim -->|"Create/verify/refund"| PSP["Payment Provider"]
     PSP -->|"Signed webhook"| SunSwim
     SunSwim -->|"Email/push"| Notify["Notification Provider"]
@@ -44,7 +44,7 @@ Các external provider chịu trách nhiệm cho:
 ## 4. Giả định về giao diện bên ngoài
 
 - Nhà cung cấp payment, locker và gate sẽ được chọn theo Procurement Plan. Contract adapter phải che phần khác nhau giữa các provider.
-- Trong MVP, gate được giả định có kết nối mạng ổn định. Khi mất mạng, gate dùng fail closed và lễ tân xử lý bằng override.
+- Máy quầy lễ tân có Local Cache và hàng đợi bản ghi quét. Khi mất mạng, ứng dụng chỉ xử lý bằng dữ liệu cục bộ còn hiệu lực; khi có mạng trở lại, dữ liệu được đồng bộ và đối soát bằng mã yêu cầu duy nhất.
 - Notification không nằm trên critical path của payment hoặc access.
 - File export được mã hóa, lưu trong private object storage và tự hết hạn.
 
@@ -53,7 +53,7 @@ Các external provider chịu trách nhiệm cho:
 - Phần mềm không thể bảo đảm physical access "exactly once" nếu gate không mở sau khi hệ thống đã trả response.
 - Payment webhook và lock command có thể bị retry, trùng hoặc đến sai thứ tự.
 - Đồng hồ của device có thể lệch, vì vậy hệ thống dùng thời gian của server làm chuẩn.
-- Mạng tại branch không ổn định sẽ ảnh hưởng trực tiếp đến gate trong MVP. Đội vận hành cần có runbook và phương án xử lý thủ công.
+- Local Cache có thể cũ hoặc thiếu dữ liệu khi mất mạng kéo dài. Ứng dụng phải hiển thị độ mới của dữ liệu, giới hạn quyết định tự động và có runbook xử lý thủ công.
 
 ## Thuật ngữ cần biết
 
@@ -63,4 +63,4 @@ Các external provider chịu trách nhiệm cho:
 | Trust boundary | Ranh giới mà dữ liệu đi qua và phải được kiểm tra lại trước khi tin cậy. |
 | Provider | Đơn vị hoặc dịch vụ bên ngoài cung cấp payment, notification hay thiết bị. |
 | Acknowledgement hoặc ack | Tín hiệu xác nhận thiết bị đã nhận hoặc thực hiện command. |
-| Fail closed | Khi gặp lỗi hoặc mất kết nối, hệ thống từ chối truy cập thay vì tự cho phép. |
+| Offline Queue | Hàng đợi lưu tạm thao tác tại quầy để gửi lên máy chủ sau khi kết nối trở lại. |

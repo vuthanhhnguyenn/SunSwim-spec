@@ -14,7 +14,9 @@ Bộ tài liệu tách BRS-FSD gốc thành các file nhỏ để người đọ
 4. Contracts: quy ước API, danh mục endpoint, event và lỗi.
 5. Delivery: MVP, kiểm thử, rủi ro và điều kiện sẵn sàng.
 
-Tài liệu nguồn: [SunSwim - Detailed Business & Functional Specification (BRS-FSD).md](</home/vuthanhnguyen/Downloads/SunSwim – Detailed Business & Functional Specification (BRS-FSD).md>).
+Tài liệu nguồn nghiệp vụ: [SunSwim - Detailed Business & Functional Specification (BRS-FSD).md](</home/vuthanhnguyen/Downloads/SunSwim – Detailed Business & Functional Specification (BRS-FSD).md>).
+
+Tôn chỉ chính thức của đồ án: [Tôn chỉ dự án SunSwim](05-delivery/00-project-charter.md). Tôn chỉ là căn cứ cao nhất cho tên dự án, mục tiêu, phạm vi cấp cao, thời gian, ngân sách, nhân sự, công nghệ, sản phẩm bàn giao và tiêu chí thành công.
 
 ## 2. Thứ tự đọc theo vai trò
 
@@ -47,17 +49,18 @@ specs/
 - Architecture: [System context](02-architecture/01-system-context.md), [Solution architecture](02-architecture/02-solution-architecture.md), [Domain/data](02-architecture/03-domain-data-architecture.md), [Consistency/events](02-architecture/04-consistency-events.md), [Security/privacy](02-architecture/05-security-privacy.md), [NFR/SLO](02-architecture/06-nfr-slo.md), [Deployment/operations](02-architecture/07-deployment-operations.md), [ADRs](02-architecture/08-architecture-decisions.md).
 - Functional: [Member & Pass](03-functional/01-membership-passes.md), [Access & Capacity](03-functional/02-access-capacity.md), [Freeze](03-functional/03-freeze-lifecycle.md), [Classes & Coaches](03-functional/04-classes-coaches.md), [Lockers](03-functional/05-lockers.md), [Commerce & Payments](03-functional/06-commerce-payments.md), [Scheduling & Pricing](03-functional/07-scheduling-pricing.md), [Reporting](03-functional/08-reporting.md).
 - Contracts: [API conventions](04-contracts/01-api-conventions.md), [API catalog](04-contracts/02-api-catalog.md), [Event catalog](04-contracts/03-event-catalog.md), [Error catalog](04-contracts/04-error-catalog.md).
-- Delivery: [Release plan](05-delivery/01-mvp-release-plan.md), [Test strategy](05-delivery/02-acceptance-test-strategy.md), [Risk register](05-delivery/03-risk-register.md), [References](05-delivery/04-references.md), [Review & sign-off](05-delivery/05-review-and-signoff.md), [Phân công báo cáo PTIT](05-delivery/06-phan-cong-bao-cao-ptit.md), [Baseline dự án thật](05-delivery/07-academic-project-baseline.md).
+- Delivery: [Project Charter](05-delivery/00-project-charter.md), [Release plan](05-delivery/01-mvp-release-plan.md), [Test strategy](05-delivery/02-acceptance-test-strategy.md), [Risk register](05-delivery/03-risk-register.md), [References](05-delivery/04-references.md), [Review & sign-off](05-delivery/05-review-and-signoff.md), [Phân công báo cáo PTIT](05-delivery/06-phan-cong-bao-cao-ptit.md), [Baseline dự án](05-delivery/07-academic-project-baseline.md).
 
 ## 4. Thứ tự ưu tiên tài liệu
 
 Khi có mâu thuẫn, ưu tiên theo thứ tự:
 
-1. Quyết định đã được duyệt trong `00-governance/03-assumptions-decisions-open-questions.md`.
-2. Business rule có ID trong `01-business/05-business-rules-catalog.md`.
-3. Functional spec của module.
-4. Contract API/event.
-5. BRS-FSD gốc.
+1. Tôn chỉ dự án trong `05-delivery/00-project-charter.md`.
+2. BRS-FSD gốc.
+3. Quyết định đã được duyệt trong `00-governance/03-assumptions-decisions-open-questions.md`.
+4. Business rule có ID trong `01-business/05-business-rules-catalog.md`.
+5. Functional spec của module.
+6. Contract API hoặc event.
 
 Contract không được thêm hành vi trái với business rule. Nếu code và spec khác nhau, nhóm phải tạo change request thay vì tự sửa một phía.
 
@@ -72,15 +75,16 @@ Contract không được thêm hành vi trái với business rule. Nếu code v�
 ## 6. Các baseline chính
 
 - Hệ thống dùng modular monolith, một PostgreSQL cluster và process riêng cho worker/scheduler.
+- Kiến trúc được tổ chức theo các tầng rõ ràng; backend dùng Java Spring Boot, frontend dùng React hoặc Vue và cơ sở dữ liệu dùng PostgreSQL.
 - Check-in, consume pass, presence và capacity nằm trong cùng transaction.
 - Tích hợp bất đồng bộ dùng transactional outbox. Delivery ít nhất một lần và consumer phải idempotent.
-- Gate trong MVP dùng fail closed. Lễ tân chỉ được override khi có quyền và phải ghi lý do.
+- Máy quầy lễ tân có Offline/Local Cache để kiểm tra dữ liệu tối thiểu khi mất mạng, lưu tạm lịch sử quét và đồng bộ ngầm khi kết nối trở lại. Trường hợp không đủ dữ liệu an toàn vẫn bị từ chối hoặc chuyển sang xử lý thủ công có ghi nhận.
 - Database lưu thời gian bằng `timestamptz`. Lịch được tính theo timezone của branch và khoảng thời gian dùng dạng `[start, end)`.
 - API biểu diễn VND bằng số nguyên; PostgreSQL dùng `numeric(19,0)`.
 - API dùng REST `/api/v1`, lỗi theo RFC 9457. Các mutation quan trọng cần idempotency key.
 - Báo cáo doanh thu trong MVP dùng cash basis: payment đã settled trừ refund đã settled.
 
-Nhóm đã chốt các baseline này để làm báo cáo học phần. Khi triển khai thật, Product Owner và owner chuyên môn phải xác nhận lại trong workshop và xử lý thay đổi theo Change Control Process.
+Các baseline kỹ thuật bổ sung dùng để hoàn thiện báo cáo học phần nhưng không được trái với Tôn chỉ dự án. Thay đổi phạm vi phải được CCB xem xét và cập nhật đồng bộ vào các tài liệu liên quan.
 
 ## 7. Definition of specification-ready
 
@@ -105,3 +109,4 @@ Một feature chỉ được đưa vào sprint khi có đủ:
 | API | Cách các phần mềm trao đổi dữ liệu và gọi chức năng của nhau. |
 | Idempotency | Gửi lại cùng một yêu cầu nhiều lần nhưng hệ thống chỉ tạo tác động một lần. |
 | Source of truth | Nguồn dữ liệu được chọn làm căn cứ chính thức khi các nguồn khác nhau. |
+| Offline/Local Cache | Phần dữ liệu cần thiết được lưu tạm tại máy quầy để luồng check-in vẫn hoạt động có kiểm soát khi mất mạng. |

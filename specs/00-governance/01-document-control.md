@@ -5,6 +5,8 @@
 | Thuộc tính | Giá trị |
 |---|---|
 | Sản phẩm | SunSwim |
+| Tên dự án | Hệ thống Quản lý Hoạt động Chuỗi Bể bơi SunSwim |
+| Mã dự án | `SSMS-2026-BTL` |
 | Loại | Business, Architecture & Functional Specification Suite |
 | Phiên bản | 1.0-academic-baseline |
 | Trạng thái | Baselined for course report |
@@ -12,18 +14,20 @@
 | Tiền tệ mặc định | VND |
 | Timezone mặc định | `Asia/Ho_Chi_Minh`, cho phép cấu hình theo branch |
 | Kênh | Admin Web, Member Responsive Web/PWA, Device API |
+| Thời gian dự án | 15/08/2026 đến 25/11/2026, gồm 14 tuần |
+| Kinh phí được duyệt | 150.000.000 VNĐ |
 
 ## 2. Chủ sở hữu và người duyệt
 
 | Nhóm tài liệu | Owner trong nhóm báo cáo | Người review nội bộ |
 |---|---|---|
-| Business | Đạt | Nguyên |
-| Architecture | Nguyên và Nam | Công |
-| Functional | Đạt và Nam | Công |
-| Contracts | Nam | Nguyên |
-| Delivery và báo cáo | Đạt | Cả nhóm |
+| Business | Vũ Thành Công | Trần Nhật Nam |
+| Architecture | Phạm Tuấn Đạt và Trần Nhật Nam | Vũ Thành Công |
+| Functional | Vũ Thành Công và Phạm Tuấn Đạt | Vũ Thành Nguyên |
+| Contracts | Phạm Tuấn Đạt | Trần Nhật Nam |
+| Delivery, chất lượng và báo cáo | Trần Nhật Nam và Vũ Thành Nguyên | Cả nhóm |
 
-Bảng sign-off xác nhận bộ tài liệu đã đủ để nhóm viết báo cáo học phần. Nếu triển khai thật, các approver nêu trong [Baseline dự án](../05-delivery/07-academic-project-baseline.md) phải review và xác nhận lại.
+Trần Nhật Nam là Project Manager và chịu trách nhiệm điều phối bản hợp nhất. Bảng trên mô tả chủ sở hữu nội dung dự án, còn trách nhiệm viết từng chương báo cáo được quy định riêng trong [Phân công báo cáo PTIT](../05-delivery/06-phan-cong-bao-cao-ptit.md). Người duyệt và đại diện khách hàng được xác định trong [Tôn chỉ dự án](../05-delivery/00-project-charter.md).
 
 ## 3. Quy tắc phiên bản
 

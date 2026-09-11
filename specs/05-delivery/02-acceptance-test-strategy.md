@@ -70,10 +70,12 @@ Tiêu chí release về bảo mật phải theo baseline OWASP ASVS mà Security
 
 ## 6. Performance/load profile
 
-- Load test gồm normal traffic và burst gate traffic theo giả định NFR.
+- Load test phải chứng minh hệ thống xử lý ít nhất 200 giao dịch đồng thời trong giờ cao điểm.
+- API phải phản hồi không quá 1,5 giây ở tải thiết kế; luồng quét check-in và gán tủ tại quầy phải dưới 5 giây.
 - Hot-member/hot-pass/hot-capacity-row contention.
 - Report/export concurrent với gate path.
 - Worker backlog catch-up sau outage.
+- Local Cache phải giữ được lịch sử quét, đồng bộ đúng một lần và đưa xung đột vào danh sách đối soát sau khi có mạng.
 - Provider latency/timeouts không giữ DB transaction.
 - Đo P50/P95/P99, error rate, lock wait/deadlock, DB pool, outbox lag.
 
@@ -90,9 +92,12 @@ Tiêu chí release về bảo mật phải theo baseline OWASP ASVS mà Security
 
 UAT evidence phải có test ID, actor, environment hoặc build, input, expected result, actual result, screenshot hoặc log reference và approver.
 
+Toàn bộ người dùng tham gia thử nghiệm phải ký xác nhận UAT. Mọi yêu cầu bắt buộc trong SRS phải có test case và kết quả đạt trước khi bàn giao.
+
 ## 8. Defect release policy
 
 - Block release: dữ liệu/tài chính sai, over-capacity, unauthorized access/data, duplicate fulfillment/payment, backup restore fail.
+- Block release: còn lỗi nghiêm trọng, lịch học vẫn có thể bị xếp trùng, đồng bộ ngoại tuyến làm mất hoặc nhân đôi lượt quét, hoặc không đạt ngưỡng hiệu năng trong Tôn chỉ.
 - Conditional: workaround an toàn, risk owner và expiry date rõ.
 - Không được "fix" test bằng cách nới invariant hoặc spec khi chưa có change approval.
 

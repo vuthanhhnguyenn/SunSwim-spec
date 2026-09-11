@@ -30,7 +30,7 @@
 | BR-GATE-007 | Pass activation/usage, access session và capacity reservation commit/rollback cùng nhau | MUST |
 | BR-GATE-008 | Checkout không consume pass và phải đóng session đúng branch | MUST |
 | BR-GATE-009 | Server time là authoritative; device time chỉ là observation metadata | MUST |
-| BR-GATE-010 | Gate offline MVP fail closed | MUST |
+| BR-GATE-010 | Khi mất mạng, quầy dùng Local Cache và lưu lịch sử quét để đồng bộ lại; chỉ tự cho phép nếu dữ liệu cục bộ còn hiệu lực và đủ điều kiện an toàn | MUST |
 
 ## Freeze
 
@@ -96,3 +96,4 @@
 | SHOULD | Yêu cầu nên thực hiện; chỉ bỏ khi có lý do được chấp nhận. |
 | Deterministic | Cùng dữ liệu đầu vào và cùng rule thì luôn cho cùng kết quả. |
 | Soft delete | Đánh dấu dữ liệu là đã hủy hoặc không còn dùng nhưng vẫn giữ lịch sử. |
+| Local Cache | Dữ liệu tối thiểu được giữ tạm trên máy quầy để phục vụ check-in khi mất kết nối. |

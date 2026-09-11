@@ -4,6 +4,8 @@
 
 Module quản lý locker vật lý, temporary assignment theo access session, fixed rental và trạng thái thiết bị. Một locker không được cấp trùng.
 
+Trong luồng tại quầy, thao tác quét check-in và nhận kết quả gán tủ phải hoàn thành trong tổng thời gian dưới 5 giây theo Tôn chỉ dự án.
+
 ## 2. Hai nhóm trạng thái
 
 Bản gốc dùng chung một nhóm cho trạng thái vận hành và trạng thái sử dụng. Baseline tách chúng thành hai nhóm riêng:

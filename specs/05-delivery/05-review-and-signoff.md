@@ -1,79 +1,94 @@
-# Review, Definition of Ready và sign-off
+# Kế hoạch review và xác nhận kết quả
 
-## 1. Kế hoạch review
+## 1. Các vòng review chính
 
-### Review A: Business policy và phạm vi
+### Review 1: Yêu cầu và WBS
 
-Thành phần: Product Owner, Operations, Finance, Training, BA và PM.
+- Hạn: 05/09/2026.
+- Người chuẩn bị: Vũ Thành Công và Phạm Tuấn Đạt.
+- Người điều phối: Trần Nhật Nam.
+- Người góp ý nghiệp vụ: Hoàng Thị Mai.
+- Nội dung: SRS, phạm vi, WBS, tiêu chí chấp nhận, RFID/QR, Local Cache, chuyển đổi Excel và yêu cầu hiệu năng.
 
-Nội dung: pass, freeze, refund, class, locker, guardian, reporting và release scope. Bộ quyết định dùng cho lập kế hoạch đã được ghi tại [Giả định và quyết định baseline](../00-governance/03-assumptions-decisions-open-questions.md). Khi triển khai thật, workshop này xác nhận hoặc tạo change request, không mở lại quyết định bằng trao đổi miệng.
+### Review 2: Kiến trúc và thiết kế
 
-### Review B: Thiết bị, payment và vận hành
+- Hạn: 26/09/2026.
+- Người chuẩn bị: Phạm Tuấn Đạt và Trần Nhật Nam.
+- Người review nghiệp vụ: Vũ Thành Công.
+- Người review khả năng kiểm thử: Vũ Thành Nguyên.
+- Nội dung: kiến trúc Java Spring Boot, React hoặc Vue, PostgreSQL, ERD, DFD, sơ đồ đối tượng, UI Prototype, bảo mật và đồng bộ ngoại tuyến.
 
-Thành phần: Operations, Device Vendor, Finance, Tech Lead, Security và Support.
+### Review 3: Sẵn sàng UAT
 
-Nội dung: device contract, payment contract, ack timeout, fail-closed, manual procedure, settlement và reconciliation. Review hoàn thành trước khi ký hợp đồng thiết bị và payment provider.
+- Hạn: 30/10/2026.
+- Người điều phối kỹ thuật: Phạm Tuấn Đạt.
+- Người xác nhận chất lượng: Vũ Thành Nguyên.
+- Người dùng đại diện: Hoàng Thị Mai.
+- Nội dung: bán vé, check-in, tủ đồ, xếp lịch, chuyển đổi thử và bằng chứng kiểm thử.
 
-### Review C: Kiến trúc, bảo mật và NFR
+### Review 4: Bàn giao
 
-Thành phần: Architect, Engineering, QA, DevOps/SRE, Security và Product Owner.
+- Hạn: 25/11/2026.
+- Người chủ trì: Trần Nhật Nam.
+- Người nghiệm thu phía khách hàng: Nguyễn Văn Bình và Hoàng Thị Mai theo trách nhiệm trong Tôn chỉ.
+- Nội dung: hệ thống, mã nguồn, kế hoạch chuyển đổi, hướng dẫn lễ tân và quản lý, biên bản UAT, chi phí và vấn đề còn lại.
 
-Nội dung: ADR, SLO, RPO, RTO, retention, tải thiết kế, topology, migration và go-live gate. Review hoàn thành trước M3: Design baseline.
+## 2. Điều kiện sẵn sàng phát triển
 
-## 2. Definition of Ready cho feature
+Một yêu cầu chỉ được đưa vào cài đặt khi:
 
-- Objective và actor rõ.
-- Rule, FR và AC có ID và trace.
-- State, data, API và event impact được xác định.
-- Quyết định business liên quan đã có baseline hoặc change request được duyệt.
-- UX state cho error, empty, loading và permission được mô tả.
-- Security, privacy và audit impact đã review.
-- Test data, provider sandbox và dependency sẵn sàng.
-- Estimate không chứa hành vi nghiệp vụ chưa xác định.
+- Có mục tiêu, actor, phạm vi và mức ưu tiên rõ.
+- Có business rule, luồng chính, ngoại lệ và tiêu chí chấp nhận.
+- Đã xác định ảnh hưởng đến dữ liệu, API, bảo mật, Local Cache hoặc thiết bị.
+- Không còn câu hỏi làm thay đổi kiến trúc hoặc ước lượng.
+- Có người thực hiện, người review và dữ liệu kiểm thử.
 
-## 3. Definition of Done
+## 3. Điều kiện hoàn thành chức năng
 
-- Code, migration và configuration đã review.
-- Unit, integration, contract và E2E test theo risk đều đạt.
-- OpenAPI và event schema được cập nhật, compatibility check đạt.
-- Authorization, branch scope và audit được kiểm tra.
-- Metrics, logs, traces, alerts và runbook có sẵn.
-- Có migration, backfill và reconciliation plan nếu thay đổi dữ liệu.
-- Spec, traceability và ADR được cập nhật.
-- Có UAT evidence và sign-off của owner.
-- Rollout và rollback-forward plan được duyệt.
+- Mã nguồn và cấu hình đã được review.
+- Test chức năng, tích hợp và test case rủi ro liên quan đều đạt.
+- Phân quyền, audit và xử lý lỗi được kiểm tra.
+- Tài liệu yêu cầu, API và hướng dẫn sử dụng đã cập nhật.
+- Không tạo dữ liệu trùng khi request hoặc bản ghi ngoại tuyến được gửi lại.
+- Có bằng chứng chạy trên môi trường tích hợp.
 
-## 4. Sign-off baseline dùng cho báo cáo
+## 4. Điều kiện nghiệm thu dự án
 
-| Khu vực | Người chuẩn bị trong nhóm | Người xác nhận nội bộ | Trạng thái |
+- Hoàn thành 100% yêu cầu bắt buộc trong SRS.
+- Không còn lỗi nghiêm trọng trước Go-live.
+- 100% người dùng thử nghiệm ký xác nhận UAT.
+- Check-in và gán tủ dưới 5 giây cho mỗi khách.
+- API không quá 1,5 giây khi kiểm thử ít nhất 200 giao dịch đồng thời.
+- Không chấp nhận lịch học trùng và không thất thoát vé trong phạm vi kiểm thử nghiệm thu.
+- Milestone không trễ quá 5 ngày làm việc và SPI không thấp hơn 0,95.
+- Chi phí thực tế không vượt 150 triệu VNĐ và CPI không thấp hơn 1,0.
+- Đủ mã nguồn, kế hoạch chuyển đổi, hướng dẫn sử dụng và biên bản UAT.
+
+## 5. Xác nhận nội bộ cho báo cáo học phần
+
+| Phần | Người soạn chính | Người review chéo | Trạng thái |
 |---|---|---|---|
-| Charter, phạm vi và business rule | Đạt | Cả nhóm | `BASELINED` ngày 09/09/2026 |
-| Lịch và milestone | Nguyên | Đạt | `BASELINED` ngày 09/09/2026 |
-| Chi phí và mua sắm | Nam | Đạt | `BASELINED` ngày 09/09/2026 |
-| Nguồn lực và RACI | Công | Nam | `BASELINED` ngày 09/09/2026 |
-| Risk Management Plan | Nguyên | Đạt | `BASELINED` ngày 09/09/2026 |
-| Quality Management Plan | Công | Đạt | `BASELINED` ngày 09/09/2026 |
-| Kiến trúc, dữ liệu, API và event | Nguyên, Nam | Công | `BASELINED` ngày 09/09/2026 |
-| Security, privacy, SLO và DR | Công, Nguyên | Cả nhóm | `BASELINED` ngày 09/09/2026 |
+| Chương 1, 2, 7 | Phạm Tuấn Đạt | Vũ Thành Công | Cập nhật khi hoàn thành |
+| Chương 3, 8 | Vũ Thành Nguyên | Trần Nhật Nam | Cập nhật khi hoàn thành |
+| Chương 4, 5 | Trần Nhật Nam | Phạm Tuấn Đạt | Cập nhật khi hoàn thành |
+| Chương 6, 9 | Vũ Thành Công | Vũ Thành Nguyên | Cập nhật khi hoàn thành |
+| Bản hợp nhất | Trần Nhật Nam | Cả nhóm | Cập nhật trước khi nộp |
 
-Trạng thái trên xác nhận bộ giả định đủ để viết báo cáo học phần. Nếu SunSwim triển khai thật, Sponsor, Product Owner và các owner chuyên môn phải ký nghiệm thu theo bảng quyền duyệt trong [Baseline dự án](07-academic-project-baseline.md). Không dùng sign-off nội bộ của nhóm sinh viên để thay cho phê duyệt thương mại hoặc pháp lý.
+Xác nhận nội bộ chỉ chứng minh trách nhiệm làm báo cáo của nhóm. Nó không thay thế chữ ký nghiệm thu của phía SunSwim trong một dự án triển khai thực tế.
 
-## 5. Điều kiện gắn phiên bản
+## 6. Quản lý nhận xét
 
-Phiên bản tài liệu có thể gắn nhãn `1.0-academic-baseline` khi:
-
-1. Không còn chuỗi `Pending`, `TBD` hoặc câu hỏi Open ảnh hưởng phạm vi báo cáo.
-2. Chín chương dùng cùng WBS, ngày, nhân lực và chi phí.
-3. Mỗi chương đã được một thành viên khác review.
-4. Owner xác nhận đã xử lý các nhận xét mức Blocker và Major.
-5. Đạt hoàn thành mục lục, version history và bản hợp nhất.
+- Mỗi nhận xét có người xử lý, hạn hoàn thành và trạng thái.
+- Nhận xét làm thay đổi phạm vi, lịch hoặc chi phí phải được chuyển thành Change Request.
+- Lỗi nghiêm trọng phải đóng trước khi ký UAT hoặc bàn giao.
+- Các thay đổi sau review phải được kiểm tra lại ở tài liệu phụ thuộc, test case và ma trận truy vết.
 
 ## Thuật ngữ cần biết
 
 | Thuật ngữ | Giải thích dễ hiểu |
 |---|---|
-| Definition of Ready | Điều kiện một công việc phải đáp ứng trước khi bắt đầu phát triển. |
-| Definition of Done | Điều kiện xác nhận một công việc đã hoàn thành. |
-| Sign-off | Xác nhận chính thức rằng tài liệu hoặc sản phẩm đạt yêu cầu. |
-| Quality gate | Bộ tiêu chí bắt buộc phải đạt trước khi chuyển sang bước tiếp theo. |
-| Severity | Mức độ nghiêm trọng của một lỗi. |
+| Review | Hoạt động kiểm tra nội dung để phát hiện thiếu sót hoặc mâu thuẫn trước khi phê duyệt. |
+| Sign-off | Xác nhận chính thức rằng tài liệu hoặc sản phẩm đã đạt yêu cầu. |
+| Go-live | Thời điểm hệ thống bắt đầu được dùng cho hoạt động thật. |
+| Change Request | Phiếu ghi nhận một thay đổi cùng lý do và tác động dự kiến. |
+| Quality gate | Nhóm điều kiện bắt buộc phải đạt trước khi chuyển sang giai đoạn tiếp theo. |

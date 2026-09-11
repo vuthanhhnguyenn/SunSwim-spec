@@ -4,26 +4,25 @@ Các số liệu dưới đây là baseline để lập kế hoạch. Engineerin
 
 ## 1. Performance
 
-| ID | SLI | Target |
+| ID | Chỉ số | Mục tiêu |
 |---|---|---|
-| NFR-PERF-001 | Gate API server latency, không tính physical actuation | P95 ≤ 800 ms, P99 ≤ 1.5 s |
-| NFR-PERF-002 | Admin transactional API | P95 ≤ 1.5 s |
-| NFR-PERF-003 | Pricing quote | P95 ≤ 500 ms |
-| NFR-PERF-004 | Live capacity event freshness | P95 ≤ 5 s |
-| NFR-PERF-005 | Standard report ≤ 31 ngày/1 branch | P95 ≤ 5 s |
-| NFR-PERF-006 | Dataset lớn | Async export; request tạo job ≤ 2 s |
+| NFR-PERF-001 | Toàn bộ thao tác quét check-in và gán tủ tại quầy | Dưới 5 giây cho mỗi khách |
+| NFR-PERF-002 | Thời gian phản hồi API ở tải thiết kế | Không quá 1,5 giây |
+| NFR-PERF-003 | Sức chịu tải tại giờ cao điểm | Ít nhất 200 giao dịch đồng thời |
+| NFR-PERF-004 | Trùng lịch học bơi do hệ thống chấp nhận | 0 trường hợp |
+| NFR-PERF-005 | Thất thoát vé do cấp hoặc ghi nhận sai | 0 trường hợp |
 
-Độ trễ tại server và end-to-end phải được đo riêng. Khi dữ liệu stale hoặc mất kết nối, dashboard phải hiển thị đúng trạng thái thay vì coi dữ liệu cũ là realtime.
+Thời gian API và thời gian thao tác từ lúc quét đến khi hiện kết quả gán tủ phải được đo riêng. Kiểm thử cần chạy với dữ liệu gần thực tế, có giao dịch check-in, bán vé, xếp lịch và báo cáo diễn ra đồng thời.
 
 ## 2. Availability và resilience
 
 | ID | Target |
 |---|---|
-| NFR-AVL-001 | Gate/API monthly availability 99.9%, loại trừ maintenance đã thông báo nếu hợp đồng cho phép |
-| NFR-AVL-002 | Admin/Member API monthly availability 99.5% |
-| NFR-AVL-003 | Provider timeout dùng retry có backoff chỉ với operation an toàn/idempotent |
-| NFR-AVL-004 | Notification/report failure không làm lỗi access/payment commit |
-| NFR-AVL-005 | Worker backlog age có alert trước khi vi phạm freshness SLO |
+| NFR-AVL-001 | Khi mất Internet, quầy dùng Local Cache để kiểm tra check-in có kiểm soát và lưu lịch sử quét tạm thời |
+| NFR-AVL-002 | Khi có mạng trở lại, dữ liệu ngoại tuyến tự đồng bộ và không tạo tác động trùng |
+| NFR-AVL-003 | Provider timeout chỉ được retry với thao tác an toàn hoặc có idempotency |
+| NFR-AVL-004 | Lỗi notification hoặc báo cáo không được làm hỏng giao dịch access hay payment đã commit |
+| NFR-AVL-005 | Hàng đợi đồng bộ và worker phải có cảnh báo khi tồn đọng vượt ngưỡng vận hành được duyệt |
 
 ## 3. Data integrity
 
@@ -31,7 +30,7 @@ Các số liệu dưới đây là baseline để lập kế hoạch. Engineerin
 - `NFR-DATA-002`: Không duplicate payment application/fulfillment với cùng idempotency identity.
 - `NFR-DATA-003`: Mọi state-changing request có request/correlation ID.
 - `NFR-DATA-004`: Point-in-time restore được bật nếu nền tảng hỗ trợ; restore test định kỳ.
-- `NFR-DATA-005`: RPO không quá 15 phút và RTO không quá 4 giờ.
+- `NFR-DATA-005`: Bản ghi quét ngoại tuyến phải truy vết được từ máy quầy đến kết quả đối soát trên máy chủ.
 
 ## 4. Security
 
@@ -43,12 +42,7 @@ Các số liệu dưới đây là baseline để lập kế hoạch. Engineerin
 
 ## 5. Scalability assumptions để test
 
-Estimate và kiểm thử dùng tải thiết kế sau:
-
-- 3 branches, 10 gates, 300 staff, 100,000 members.
-- Burst 20 gate requests/second toàn hệ thống.
-- 2 million access events/year.
-- 200 concurrent admin/member sessions.
+Tải thiết kế tối thiểu là 200 giao dịch đồng thời trong giờ cao điểm. Kịch bản tải phải phối hợp các giao dịch bán vé, check-in/out, gán tủ và xếp lịch, thay vì chỉ mở 200 phiên đăng nhập không tạo giao dịch.
 
 Load test phải bao gồm trường hợp nhiều request dùng cùng QR hoặc pass, capacity chỉ còn một chỗ, webhook trùng theo burst và report chạy cùng lúc với gate traffic.
 
@@ -73,4 +67,4 @@ Load test phải bao gồm trường hợp nhiều request dùng cùng QR hoặc
 | SLI | Chỉ số thực tế dùng để đo chất lượng dịch vụ. |
 | SLO | Mục tiêu cụ thể mà một SLI phải đạt. |
 | P95/P99 | Mốc mà 95% hoặc 99% request có thời gian xử lý không vượt quá giá trị đó. |
-| RPO/RTO | Mức dữ liệu có thể mất và thời gian tối đa để khôi phục dịch vụ sau sự cố. |
+| Local Cache | Dữ liệu cần thiết được lưu tạm tại quầy để duy trì check-in khi mất mạng. |

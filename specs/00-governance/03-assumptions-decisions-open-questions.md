@@ -12,7 +12,7 @@ Các quyết định trong file này được chốt ở mức `BASELINED` để
 | DEC-002 | Pass Product là mẫu sản phẩm; Member Pass giữ snapshot các điều khoản tại thời điểm phát hành | `BASELINED` | Thay đổi catalog không làm đổi quyền đã bán |
 | DEC-003 | Một member chỉ có tối đa một access session đang mở trên toàn chuỗi | `BASELINED` | Ngăn dùng cùng QR tại nhiều chi nhánh |
 | DEC-004 | Occupancy chuẩn bằng số access session mở có cờ `counts_toward_capacity` | `BASELINED` | Có thể audit và dựng lại từ dữ liệu gốc |
-| DEC-005 | Gate vận hành fail closed; lễ tân có quyền manual override và phải ghi lý do | `SOURCE_CONFIRMED` | Bảo đảm an toàn khi hệ thống không xác định được quyền vào |
+| DEC-005 | Khi mất mạng, máy quầy lễ tân dùng Offline/Local Cache để kiểm tra dữ liệu tối thiểu, lưu lịch sử quét và đồng bộ ngầm khi có mạng trở lại; yêu cầu không đủ dữ liệu an toàn phải bị từ chối hoặc chuyển sang xử lý thủ công có ghi nhận | `SOURCE_CONFIRMED` | Duy trì check-in có kiểm soát theo Tôn chỉ dự án |
 | DEC-006 | Locker tạm thời là tùy chọn, không phải điều kiện bắt buộc để check-in | `BASELINED` | Hết locker không làm dừng toàn bộ luồng vào bể |
 | DEC-007 | Giá được snapshot tại thời điểm tạo order; access restriction là policy riêng của pass | `BASELINED` | Tách tính tiền khỏi kiểm tra quyền sử dụng |
 | DEC-008 | Payment webhook hoặc server verification là nguồn xác nhận thanh toán; redirect chỉ phục vụ UX | `SOURCE_CONFIRMED` | Tránh cấp quyền từ dữ liệu do client gửi |
@@ -35,12 +35,12 @@ Các quyết định trong file này được chốt ở mức `BASELINED` để
 | OQ-005 | Sau 10 giây không nhận ack mở cổng, hệ thống đóng access session vừa tạo, hoàn lại lượt đã consume, cập nhật capacity và ghi recovery audit | Operations Lead và Device Vendor |
 | OQ-006 | Capacity được kiểm soát đồng thời ở cấp chi nhánh và pool zone; request chỉ được phép khi cả hai còn chỗ | Operations Lead |
 | OQ-007 | Locker là tùy chọn ở cả ba chi nhánh; một số lớp có thể yêu cầu locker theo cấu hình riêng | Operations Lead |
-| OQ-008 | Dự án tích hợp một payment provider qua adapter; nhà cung cấp cụ thể được chọn trong gói mua sắm trước Release 2 | Finance Lead và Tech Lead |
+| OQ-008 | Nếu SRS yêu cầu tích hợp thanh toán ngoài, dự án dùng một payment provider qua adapter; lựa chọn cụ thể phải hoàn tất trong mốc thiết kế tuần 6 | Đại diện Khách hàng và Technical Lead |
 | OQ-009 | Giá niêm yết đã gồm thuế; số tiền làm tròn đến 1 VND; tích hợp hóa đơn điện tử nằm ngoài phạm vi giai đoạn này | Finance Lead |
 | OQ-010 | Pass chưa kích hoạt và chưa sử dụng được hoàn 100% trong 7 ngày; pass đã sử dụng không hoàn, trừ lỗi do SunSwim và cần Manager duyệt | Finance Lead và Product Owner |
 | OQ-011 | Member dưới 16 tuổi bắt buộc có guardian, emergency contact và waiver còn hiệu lực trước khi tham gia lớp | Legal và Operations Lead |
 | OQ-012 | Hồ sơ hội viên được giữ trong thời gian hoạt động và 24 tháng sau lần giao dịch cuối; payment và audit giữ 5 năm; hết hạn thì xóa hoặc ẩn danh theo loại dữ liệu | Legal và Security Lead |
-| OQ-013 | Availability mục tiêu là 99,9% theo tháng; gate decision P95 không quá 800 ms; RPO 15 phút và RTO 4 giờ | Sponsor và Engineering Lead |
+| OQ-013 | Hệ thống chịu ít nhất 200 giao dịch đồng thời; API phản hồi không quá 1,5 giây; toàn bộ thao tác quét check-in và gán tủ tại quầy dưới 5 giây | Đại diện Chủ đầu tư và Technical Lead |
 | OQ-014 | Operations quản lý lịch ngày lễ Việt Nam trong hệ thống; lịch năm kế tiếp phải được công bố trước ngày 01/12 | Operations Lead |
 | OQ-015 | Lớp theo khóa bán ở cấp Offering; lớp drop-in bán theo từng Session; nghỉ có lý do không consume và Manager có thể cấp một make-up credit | Training Manager |
 
@@ -60,8 +60,8 @@ Các quyết định trong file này được chốt ở mức `BASELINED` để
 
 - Một pháp nhân vận hành ba chi nhánh; multi-tenant SaaS ngoài phạm vi.
 - Mỗi chi nhánh có nhiều gate và pool zone.
-- Member PWA không cần hoạt động offline.
-- Gate reader chỉ gửi credential và nhận quyết định, không giữ toàn bộ business rule.
+- Member PWA không cần hoạt động offline; yêu cầu offline chỉ áp dụng cho máy quầy lễ tân phục vụ check-in.
+- Gate reader gửi thông tin RFID hoặc QR cho phần mềm tại quầy. Local Cache chỉ giữ tập dữ liệu tối thiểu đã được chuẩn bị trước, không thay thế toàn bộ business rule trên máy chủ.
 - SunSwim không lưu PAN đầy đủ, CVV hoặc PIN; phần nhập dữ liệu thẻ do payment provider cung cấp.
 - Redis, dashboard read model và snapshot là dữ liệu dẫn xuất, có thể dựng lại.
 - Dữ liệu dùng trong phát triển và báo cáo học phần là synthetic hoặc đã masking.
@@ -73,6 +73,6 @@ Các quyết định trong file này được chốt ở mức `BASELINED` để
 |---|---|
 | Baseline | Bộ quyết định tạm thời được chốt để nhóm có thể lập kế hoạch thống nhất. |
 | Snapshot | Bản chụp dữ liệu tại một thời điểm, được giữ lại để lịch sử không đổi theo cấu hình mới. |
-| Fail closed | Khi không xác định được quyền truy cập, hệ thống chọn từ chối để bảo đảm an toàn. |
+| Offline/Local Cache | Dữ liệu tối thiểu được lưu tại máy quầy để tiếp tục kiểm tra check-in trong thời gian mất mạng. |
 | Settlement | Xác nhận đáng tin cậy rằng giao dịch thanh toán đã hoàn tất. |
 | Idempotent | Có thể xử lý lại cùng yêu cầu mà không tạo thêm kết quả trùng. |

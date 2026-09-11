@@ -10,7 +10,7 @@
 | Pass Product | Cấu hình sản phẩm bán, giá cơ sở và chính sách | Quyền đã cấp |
 | Member Pass | Entitlement đã cấp cho một member từ một order/override | Product |
 | Pass Usage | Bút toán tiêu thụ/hoàn/điều chỉnh lượt, bất biến | Số đếm có thể sửa trực tiếp |
-| Access Credential | Token QR opaque/signed dùng để resolve subject | Member ID/pass ID thô |
+| Access Credential | Mã RFID hoặc QR dùng để xác định hội viên mà không lộ ID nội bộ | Member ID/pass ID thô |
 | Access Event | Mọi lần yêu cầu cổng, gồm allow/deny | Access Session |
 | Access Session | Khoảng hiện diện từ check-in thành công đến check-out/reconciliation | Một lần quét |
 | Presence | Trạng thái `OUTSIDE`/`INSIDE` tại một branch | Attendance lớp |
@@ -29,12 +29,13 @@
 | Reconciliation | Tác vụ có ghi vết để sửa lệch trạng thái vận hành | Sửa/xóa lịch sử trực tiếp |
 | Business Day | Ngày theo timezone của branch | Ngày UTC |
 | Source of Truth | Dữ liệu authoritative để ra quyết định | Cache/read model |
+| Local Cache | Tập dữ liệu tối thiểu được lưu tạm tại máy quầy để hỗ trợ check-in khi mất mạng | Cơ sở dữ liệu chính thức |
 
 ## Quy ước khoảng thời gian
 
 Mọi khoảng thời gian kỹ thuật đều dùng dạng nửa mở `[start, end)`. Ví dụ, slot từ 17:00 đến 20:00 nhận thời điểm `17:00:00` nhưng không nhận `20:00:00`. Cách tính này tránh overlap tại ranh giới. Khi giao diện hiển thị "đến hết ngày", hệ thống chuyển giá trị đó thành `end_exclusive` của ngày kế tiếp theo timezone branch.
 
-## Cách hiểu một số từ kỹ thuật
+## Thuật ngữ cần biết
 
 | Thuật ngữ | Giải thích dễ hiểu |
 |---|---|

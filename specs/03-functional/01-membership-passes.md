@@ -131,7 +131,7 @@ Hệ thống không tự merge hồ sơ chỉ vì tên hoặc email gần giốn
 2. Entitlement validate order item đã đủ điều kiện.
 3. Snapshot product version/policy và tạo Member Pass.
 4. Ghi initial usage credit nếu finite-entry.
-5. Tạo/associate QR credential theo credential strategy.
+5. Tạo hoặc liên kết credential RFID/QR theo chiến lược credential đã duyệt.
 6. Ghi fulfillment/outbox; retry trả cùng pass.
 
 ### Adjust entries

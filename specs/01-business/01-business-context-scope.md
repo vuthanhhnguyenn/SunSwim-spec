@@ -10,7 +10,7 @@ SunSwim cần dùng chung một nguồn dữ liệu cho bán hàng, entitlement,
 |---|---|---|
 | OBJ-COM-001 | Mọi khoản thu gắn được với order, payment và fulfillment | 100% payment settled truy vết được |
 | OBJ-ENT-001 | Quyền sử dụng pass được kiểm tra nhất quán | 0 pass âm lượt; 0 fulfillment trùng |
-| OBJ-ACCESS-001 | Vào/ra nhanh, an toàn và audit được | Gate decision P95 theo NFR; 0 over-capacity do race |
+| OBJ-ACCESS-001 | Vào/ra nhanh, an toàn và truy vết được | Quét check-in và gán tủ dưới 5 giây; không vượt sức chứa do xử lý đồng thời |
 | OBJ-OPS-001 | Nhân viên thấy occupancy/locker gần realtime | Độ trễ dashboard theo SLO |
 | OBJ-TRAIN-001 | Vận hành lớp, coach, enrollment, attendance thống nhất | 0 double-booking đã xác nhận |
 | OBJ-REPORT-001 | Số liệu báo cáo có định nghĩa và drill-down | Chênh lệch settlement/report trong tolerance |
@@ -19,8 +19,9 @@ SunSwim cần dùng chung một nguồn dữ liệu cho bán hàng, entitlement,
 
 - Từ 1 đến 3 branch trong một tổ chức.
 - Member/guest, 3 loại pass, lifecycle và usage ledger.
-- POS cash trong R1; online/QR payment integration trong R2.
-- QR gate check-in/out, manual override, live capacity.
+- Bán vé và ghi nhận thanh toán tại quầy phải có trong bản pilot M3; tích hợp thanh toán ngoài chỉ thực hiện nếu được xác nhận trong SRS và thiết kế tuần 6.
+- Thẻ hội viên RFID hoặc QR, check-in/out qua cửa xoay, manual override và theo dõi sức chứa.
+- Offline/Local Cache tại máy quầy lễ tân, lưu lịch sử quét tạm thời và đồng bộ khi có mạng trở lại.
 - Freeze, locker temporary/fixed, dynamic pricing.
 - Class/course/session, coach, enrollment, waitlist, attendance.
 - Revenue, traffic, occupancy, export có quyền.
@@ -32,7 +33,6 @@ SunSwim cần dùng chung một nguồn dữ liệu cho bán hàng, entitlement,
 - Multi-tenant SaaS cho nhiều công ty độc lập.
 - Payroll/commission coach, general ledger, full accounting.
 - Biometric access, face recognition, native mobile app.
-- Gate offline entitlement cache trong MVP.
 - Inventory/retail stock management đầy đủ.
 - Lane reservation, facility booking và competition/meet management.
 - Marketing automation/CRM lead pipeline.
@@ -56,7 +56,7 @@ flowchart LR
 4. Occupancy không được vượt limit nếu không có override hợp lệ.
 5. Không sửa lịch sử giá, payment, usage, access hoặc audit chỉ để "khớp số".
 6. Backend phải giới hạn dữ liệu branch theo phạm vi quyền.
-7. Cache không phải nguồn quyết định cho payment, pass usage hoặc capacity.
+7. Local Cache chỉ được dùng trong chế độ mất mạng theo tập dữ liệu và chính sách đã đồng bộ. Máy chủ vẫn là nguồn dữ liệu chính thức sau khi các bản ghi ngoại tuyến được đối soát.
 
 ## 7. Phạm vi còn thiếu so với sản phẩm tham khảo
 

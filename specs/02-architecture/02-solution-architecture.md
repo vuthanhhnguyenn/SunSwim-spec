@@ -2,7 +2,14 @@
 
 ## 1. Architectural style
 
-Kiến trúc đã chốt là modular monolith. Web/API và worker chạy ở các process riêng nhưng dùng chung codebase và PostgreSQL. Trong giai đoạn đầu, toàn bộ hệ thống là một đơn vị deploy có ranh giới module và contract rõ ràng.
+Kiến trúc đã chốt là ứng dụng web phân tầng theo mô hình modular monolith. Web/API và worker chạy ở các process riêng nhưng dùng chung codebase và PostgreSQL. Trong giai đoạn đầu, toàn bộ hệ thống là một đơn vị deploy có ranh giới module và contract rõ ràng.
+
+Nền tảng công nghệ theo Tôn chỉ dự án:
+
+- Backend: Java Spring Boot.
+- Frontend: React hoặc Vue; lựa chọn cuối cùng được chốt trong thiết kế tuần 6.
+- Cơ sở dữ liệu: PostgreSQL.
+- Thiết bị tại quầy: tận dụng máy tính và máy quét mã vạch hoặc RFID sẵn có của SunSwim.
 
 Lý do:
 
@@ -17,6 +24,7 @@ Lý do:
 flowchart TB
     Admin["Admin Web"] --> API["API/BFF"]
     PWA["Member PWA"] --> API
+    Desk["Reception App + Local Cache"] --> DeviceAPI["Device API"]
     Gate["Gate Reader"] --> DeviceAPI["Device API"]
     API --> App["Application Modules"]
     DeviceAPI --> App

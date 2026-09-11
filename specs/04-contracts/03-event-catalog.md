@@ -53,6 +53,7 @@ Tên custom extension dùng chữ thường. `id` không đổi khi retry, và p
 | `access.session.opened.v1` | Access | sessionId, memberId, passId, branch/zone, at | Facility/locker, reporting |
 | `access.session.closed.v1` | Access | sessionId, branch/zone, at, reason | Locker, reporting |
 | `access.session.reconciled.v1` | Access | sessionId, correction, reason | Reporting/audit |
+| `access.offline-scan.reconciled.v1` | Access | requestId, deviceId, observedAt, local/server result, resolution | Audit, operations |
 | `facility.capacity.changed.v1` | Facility/Access | branch/zone, current, limit, threshold, asOf | Realtime/alerts |
 | `facility.capacity.threshold-reached.v1` | Facility | branch/zone, old/new threshold | Notification/ops |
 | `facility.locker.assigned.v1` | Facility | assignmentId, lockerId, session/rental ref | Realtime/notification |
@@ -70,6 +71,7 @@ Tên custom extension dùng chữ thường. `id` không đổi khi retry, và p
 - Mặc định không phát full entity snapshot. Payload chỉ chứa các field ổn định mà consumer cần.
 - Update event ghi changed field hoặc semantic outcome, không phát raw old/new PII.
 - `reasonCode` dùng enum trong catalog. Free-text reason được lưu ở audit và không broadcast khi không cần.
+- Event đối soát bản ghi ngoại tuyến không chứa raw RFID/QR hoặc dữ liệu cá nhân không cần thiết.
 
 ## 5. Compatibility
 

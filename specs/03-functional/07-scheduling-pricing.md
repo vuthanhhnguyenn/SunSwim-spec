@@ -118,7 +118,7 @@ Tại thời gian của server, hệ thống xác định branch timezone, openi
 
 ## 13. Quyết định baseline
 
-Operations công bố lịch ngày lễ năm kế tiếp trước ngày 01/12. Rule có scope cụ thể hơn được xét trước, sau đó theo priority, effective time và ID. Trong cùng non-stackable group chỉ lấy rule ưu tiên cao nhất. Giá đã gồm thuế và làm tròn đến 1 VND. Member segment có trong Release 2; coupon, promotion code và gate surcharge upgrade được deferred. Chi tiết truy vết tại `OQ-009` và `OQ-014`.
+Operations công bố lịch ngày lễ năm kế tiếp trước ngày 01/12. Rule có scope cụ thể hơn được xét trước, sau đó theo priority, effective time và ID. Trong cùng non-stackable group chỉ lấy rule ưu tiên cao nhất. Giá đã gồm thuế và làm tròn đến 1 VND. Member segment được hoàn thiện trong giai đoạn cài đặt; coupon, promotion code và gate surcharge upgrade được chuyển sang giai đoạn sau. Chi tiết truy vết tại `OQ-009` và `OQ-014`.
 
 ## Thuật ngữ cần biết
 

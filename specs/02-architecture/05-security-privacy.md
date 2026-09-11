@@ -7,6 +7,8 @@ Hoạt động kiểm tra bảo mật dựa trên OWASP ASVS 5.0 ở mức phù 
 | Asset | Threat chính | Control |
 |---|---|---|
 | QR credential | Copy/replay/guess | opaque random token hoặc signed short-lived token, rotation, debounce, revoke |
+| RFID credential | Sao chép hoặc dùng thẻ đã khóa | mã thẻ không chứa PII, trạng thái thu hồi, kiểm tra lặp và audit |
+| Local Cache tại quầy | Đánh cắp máy, dữ liệu cũ, sửa hàng đợi | mã hóa ổ đĩa, tài khoản thiết bị, dữ liệu tối thiểu, thời hạn cache, chữ ký hoặc kiểm tra toàn vẹn và đồng bộ có idempotency |
 | Gate decision | Device giả, tamper branch, replay | per-device credential, mTLS/HMAC, request ID, nonce/skew, branch binding |
 | Payment state | Fake/duplicate webhook | raw-body signature, provider lookup, amount/currency check, unique event/transaction |
 | Member PII | IDOR, excessive access/export | object-level auth, branch scope, field masking, audit, least privilege |
@@ -64,6 +66,8 @@ Hoạt động kiểm tra bảo mật dựa trên OWASP ASVS 5.0 ở mức phù 
 Audit không được ghi password, OTP, raw secret, full token, CVV hoặc nội dung nhạy cảm trong attachment.
 
 ## 8. Security acceptance gate
+
+- Kiểm thử mất mạng phải xác nhận Local Cache không chứa dữ liệu cá nhân không cần thiết, không lộ raw credential và không cho phép sửa lịch sử quét mà không bị phát hiện.
 
 - Threat model phải được cập nhật theo provider và device đã chọn.
 - Dependency/container/IaC/secret scans pass theo severity policy.

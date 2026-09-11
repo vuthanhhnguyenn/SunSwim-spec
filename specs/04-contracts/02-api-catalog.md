@@ -38,6 +38,10 @@ Catalog là logical contract dùng chung cho frontend, backend và device. Reque
 | `POST /lockers/{id}/emergency-unlocks` | Unlock command | `locker.emergency_unlock` | step-up + key |
 | `POST /locker-device-events` | Device callback | gateway auth | provider event dedupe |
 
+### Yêu cầu contract cho đồng bộ ngoại tuyến
+
+Contract đồng bộ từ máy quầy sẽ được chốt trong OpenAPI ở mốc thiết kế tuần 6. Dù chọn truyền từng bản ghi hay theo lô, contract phải mang `requestId`, định danh thiết bị, thời gian quan sát, phiên bản Local Cache và kết quả đã hiển thị tại quầy. Server phải xử lý idempotent, trả trạng thái cho từng bản ghi và chỉ xóa khỏi hàng đợi cục bộ sau khi đã xác nhận nhận dữ liệu.
+
 ## Freeze
 
 | Method/path | Operation | Permission | Notes |

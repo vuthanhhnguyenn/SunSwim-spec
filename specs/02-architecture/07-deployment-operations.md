@@ -19,6 +19,7 @@ Các environment không dùng chung database hoặc secret. Migration chạy m�
 - Redis managed là thành phần tùy chọn. Mất Redis không được làm sai payment, pass hoặc capacity.
 - Attachment, export và receipt được lưu trong private object storage.
 - Log, metric, trace và alert được thu thập tập trung.
+- Máy quầy lễ tân chạy ứng dụng web và thành phần Local Cache được bảo vệ. Thành phần này lưu dữ liệu tối thiểu cùng hàng đợi lịch sử quét để đồng bộ lại sau sự cố mạng.
 
 Spec này không giả định một cloud hoặc vendor cụ thể.
 
@@ -54,6 +55,7 @@ Spec này không giả định một cloud hoặc vendor cụ thể.
 |---|---|
 | Gate API degraded | latency/error SLO breach |
 | Branch network offline | device heartbeat lost |
+| Offline queue synchronization | có kết nối trở lại nhưng bản ghi chưa đồng bộ hoặc phát sinh xung đột |
 | Capacity drift | counter ≠ open session count |
 | Payment webhook backlog | age/depth alert |
 | Fulfillment stuck | paid order item pending quá SLA |
@@ -66,6 +68,7 @@ Spec này không giả định một cloud hoặc vendor cụ thể.
 ## 7. Operational dashboards
 
 - Gate health theo branch/device, last heartbeat, deny/error ratio.
+- Thời điểm Local Cache cập nhật gần nhất, số bản ghi ngoại tuyến chờ đồng bộ và số xung đột cần xử lý.
 - Capacity current, drift, manual adjustment.
 - Payment webhook rate, verify failures, pending age, settlement mismatch.
 - Fulfillment backlog và retry count.

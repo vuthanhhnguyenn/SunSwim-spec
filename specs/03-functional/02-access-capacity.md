@@ -1,4 +1,4 @@
-# Đặc tả chức năng 02: QR Access và Capacity
+# Đặc tả chức năng 02: RFID/QR Access và Capacity
 
 ## 1. Mục tiêu
 
@@ -8,7 +8,7 @@ Module phải đưa ra quyết định access nhanh, nhất quán và có thể 
 
 - Gate Reader phải là authenticated device và được gắn với gate, branch cùng direction cụ thể.
 - Manager hoặc Receptionist được manual check-in, check-out và override theo permission.
-- Member hoặc Guest cần có credential chưa bị revoke.
+- Member hoặc Guest cần có credential RFID/QR chưa bị thu hồi.
 - Branch, gate và zone phải active; capacity policy phải tồn tại.
 
 ## 3. Request và response
@@ -110,6 +110,14 @@ Theo baseline, hệ thống trả ALLOW trước khi gate mở. Nếu hardware h
 - Staff/worker đóng với `RECONCILED`, reason và policy version.
 - Occupancy cập nhật cùng transaction; historical metric giữ dấu vết correction.
 
+## 9.1 Chế độ ngoại tuyến tại quầy
+
+- Ứng dụng hiển thị rõ trạng thái ngoại tuyến, thời điểm đồng bộ gần nhất và số bản ghi đang chờ gửi.
+- Chỉ xử lý credential có dữ liệu cục bộ còn hiệu lực và đủ thông tin để kiểm tra quyền vào. Trường hợp còn nghi ngờ phải từ chối tự động hoặc chuyển cho lễ tân xử lý có ghi nhận.
+- Mỗi lần quét lưu `requestId`, mã thiết bị, thời gian quan sát, quyết định và phiên bản cache. Dữ liệu nhạy cảm không được ghi thừa.
+- Khi có mạng trở lại, ứng dụng tự gửi hàng đợi lên máy chủ. Máy chủ chống ghi trùng bằng `requestId`, cập nhật kết quả đồng bộ và đưa xung đột vào danh sách đối soát.
+- Không được xóa bản ghi cục bộ trước khi máy chủ xác nhận đã nhận hoặc đã xác định rõ lỗi cần xử lý.
+
 ## 10. Realtime UI
 
 - Snapshot endpoint trả current/limit/threshold/asOf.
@@ -140,12 +148,13 @@ Theo baseline, hệ thống trả ALLOW trước khi gate mở. Nếu hardware h
 - `AC-GATE-005`: Given capacity còn một chỗ và hai requests, then một ALLOW, một `CAPACITY_FULL`.
 - `AC-GATE-006`: Given member INSIDE, when IN again, then deny và không consume.
 - `AC-GATE-007`: Given checkout hợp lệ, then session closed/capacity decreased; pass balance unchanged.
-- `AC-GATE-008`: Given network/server unavailable, then device fail closed và staff fallback có audit.
+- `AC-GATE-008`: Given Internet unavailable và cache còn hiệu lực, when quét RFID/QR hợp lệ, then quầy trả quyết định theo chính sách ngoại tuyến, lưu lịch sử và tự đồng bộ đúng một lần khi có mạng.
 - `AC-GATE-009`: Given SSE reconnect, then UI refetch snapshot và không double-apply old event.
+- `AC-GATE-010`: Given cache thiếu hoặc hết hiệu lực, when quét credential, then hệ thống không tự cho phép và hướng dẫn xử lý thủ công có audit.
 
 ## 14. Quyết định baseline
 
-Presence dùng phạm vi toàn chuỗi; capacity kiểm soát cả branch và zone; locker là tùy chọn. Session còn mở được auto-close sau 2 giờ kể từ giờ đóng cửa với trạng thái `RECONCILED`. Quy tắc ack và recovery áp dụng như mục 8. Chi tiết truy vết tại `OQ-001`, `OQ-005`, `OQ-006`, `OQ-007` và `OQ-019`.
+Presence dùng phạm vi toàn chuỗi; capacity kiểm soát cả branch và zone; locker là tùy chọn. Session còn mở được auto-close sau 2 giờ kể từ giờ đóng cửa với trạng thái `RECONCILED`. Quy tắc ack và recovery áp dụng như mục 8; chế độ ngoại tuyến áp dụng như mục 9.1. Chi tiết truy vết tại `DEC-005`, `OQ-001`, `OQ-005`, `OQ-006`, `OQ-007` và `OQ-019`.
 
 ## Thuật ngữ cần biết
 
@@ -156,3 +165,4 @@ Presence dùng phạm vi toàn chuỗi; capacity kiểm soát cả branch và zo
 | Idempotency | Gửi lại cùng request nhưng không tạo thêm session, usage hoặc capacity change. |
 | Debounce window | Khoảng thời gian ngắn dùng để nhận biết một QR vừa bị quét lặp. |
 | Reconciliation | Đối chiếu và sửa trạng thái vận hành bằng một bản ghi có audit. |
+| Credential | Thông tin nhận diện dùng khi quét thẻ RFID hoặc mã QR. |

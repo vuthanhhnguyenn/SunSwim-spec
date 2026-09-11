@@ -2,17 +2,17 @@
 
 ## 1. Capability map
 
-| Cấp 1 | Cấp 2 | Release | Domain owner |
+| Cấp 1 | Cấp 2 | Mốc mục tiêu | Domain owner |
 |---|---|---|---|
-| Customer | Member profile, guest, contact | R1 | Customer |
-| Catalog | Pass/class/locker products | R1 đến R3 | Catalog |
-| Entitlement | Issue, activate, expire, consume, adjust, freeze | R1 đến R2 | Entitlement |
-| Commerce | Quote, order, payment, refund, receipt, fulfillment | R1 đến R2 | Commerce |
-| Access | Credential, decision, session, override | R1 | Access |
-| Facility | Branch, zone, gate, capacity, locker | R1 đến R2 | Facility |
-| Training | Class, course, session, coach, enrollment, attendance | R3 | Training |
-| Reporting | Revenue, traffic, occupancy, export | R1 đến R2 | Reporting |
-| Platform | Identity, RBAC, audit, notification, scheduler | R1 | Platform |
+| Customer | Member profile, guest, contact | M3 pilot | Customer |
+| Catalog | Pass/class/locker products | M3 pilot | Catalog |
+| Entitlement | Issue, activate, expire, consume, adjust, freeze | M3 cốt lõi, M4 hoàn thiện | Entitlement |
+| Commerce | Quote, order, payment, refund, receipt, fulfillment | M3 cốt lõi, M4 hoàn thiện | Commerce |
+| Access | Credential, decision, session, override, offline sync | M3 pilot | Access |
+| Facility | Branch, zone, gate, capacity, locker | M3 pilot | Facility |
+| Training | Class, course, session, coach, enrollment, attendance | M3 pilot | Training |
+| Reporting | Revenue, traffic, occupancy, export | M4 bàn giao | Reporting |
+| Platform | Identity, RBAC, audit, notification, scheduler | M3 cốt lõi, M4 hoàn thiện | Platform |
 
 ## 2. Bounded contexts
 
